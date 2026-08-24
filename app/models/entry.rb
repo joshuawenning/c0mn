@@ -1,6 +1,5 @@
 class Entry < ApplicationRecord
   MEDIA_KINDS = %w[link image video audio article].freeze
-  SEARCH_COLUMNS = %w[title notes source_name].freeze
 
   has_many :taggings, dependent: :destroy
   has_many :tags, -> { order(:name) }, through: :taggings
@@ -25,17 +24,17 @@ class Entry < ApplicationRecord
     return all if query.blank?
 
     pattern = "%#{sanitize_sql_like(query.to_s.strip)}%"
-    column_matches = SEARCH_COLUMNS.map { |column| "entries.#{column} LIKE :query ESCAPE '\\'" }
-    tag_matches = <<~SQL.squish
-      EXISTS (
+    where(<<~SQL.squish, query: pattern)
+      entries.title LIKE :query ESCAPE '\\'
+      OR entries.notes LIKE :query ESCAPE '\\'
+      OR entries.source_name LIKE :query ESCAPE '\\'
+      OR EXISTS (
         SELECT 1 FROM taggings
         INNER JOIN tags ON tags.id = taggings.tag_id
         WHERE taggings.entry_id = entries.id
           AND tags.name LIKE :query ESCAPE '\\'
       )
     SQL
-
-    where("(#{(column_matches << tag_matches).join(' OR ')})", query: pattern)
   end
 
   def self.tagged_with(slug)

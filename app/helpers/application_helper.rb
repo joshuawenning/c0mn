@@ -1,6 +1,20 @@
 module ApplicationHelper
+  EXTERNAL_LINK_TAGS = %w[a].freeze
+  EXTERNAL_LINK_ATTRIBUTES = %w[class href rel target].freeze
   MARKDOWN_TAGS = %w[p br strong em a ul ol li blockquote code pre h2 h3 h4 hr].freeze
   MARKDOWN_ATTRIBUTES = %w[href title].freeze
+
+  def external_link_to(label, url, class_name: nil, https_only: false)
+    parsed_url = EntryUrl.new(url)
+    valid_url = parsed_url.uri.to_s if parsed_url.valid? && (!https_only || parsed_url.https?)
+    return ERB::Util.html_escape(label) unless valid_url
+
+    sanitize(
+      link_to(label, valid_url, target: "_blank", rel: "noopener", class: class_name),
+      tags: EXTERNAL_LINK_TAGS,
+      attributes: EXTERNAL_LINK_ATTRIBUTES
+    )
+  end
 
   def render_markdown(text)
     return if text.blank?

@@ -82,5 +82,6 @@ class EntriesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".notes h2", text: "Context"
     assert_select ".notes strong", text: "useful"
     assert_select ".notes script", count: 0
+    assert_select "a.entry-detail__url[href='https://example.com/notes'][target='_blank'][rel='noopener']"
   end
 end

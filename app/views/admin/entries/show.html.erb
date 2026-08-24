@@ -13,11 +13,11 @@
 
   <dl class="<%= class_names("admin-facts", "admin-facts--without-preview": @entry.embeddable_image_url.blank?) %>">
     <dt>URL</dt>
-    <dd class="admin-facts__url"><%= link_to @entry.url, @entry.url, target: "_blank", rel: "noopener" %></dd>
+    <dd class="admin-facts__url"><%= external_link_to @entry.url, @entry.url %></dd>
     <dt>Image URL</dt>
     <dd class="admin-facts__url">
       <% if @entry.image_url.present? %>
-        <%= link_to @entry.image_url, @entry.image_url, target: "_blank", rel: "noopener" %>
+        <%= external_link_to @entry.image_url, @entry.image_url, https_only: true %>
       <% else %>
         Not set
       <% end %>

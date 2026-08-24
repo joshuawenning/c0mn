@@ -33,6 +33,8 @@ class Admin::EntriesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select ".admin-entry-preview img[src='https://cdn.example.com/garden.jpg']"
     assert_select ".admin-facts--without-preview", count: 0
+    assert_select ".admin-facts__url a[href='https://example.com/garden'][target='_blank'][rel='noopener']"
+    assert_select ".admin-facts__url a[href='https://cdn.example.com/garden.jpg'][target='_blank'][rel='noopener']"
 
     get edit_admin_entry_path(@entry)
 

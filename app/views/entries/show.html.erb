@@ -38,7 +38,7 @@
         <div class="markdown notes entry-detail__notes"><%= render_markdown(@entry.notes) %></div>
       <% end %>
 
-      <%= link_to @entry.url, @entry.url, target: "_blank", rel: "noopener", class: "entry-detail__url" %>
+      <%= external_link_to @entry.url, @entry.url, class_name: "entry-detail__url" %>
     </div>
   </article>
 </main>

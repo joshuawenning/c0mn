@@ -13,6 +13,13 @@ class EntryTest < ActiveSupport::TestCase
     assert_includes entry.errors[:url], "must be an absolute http or https URL"
   end
 
+  test "rejects executable URL schemes" do
+    entry = Entry.new(title: "Unsafe", url: "javascript:alert('no')")
+
+    assert_not entry.valid?
+    assert_includes entry.errors[:url], "must be an absolute http or https URL"
+  end
+
   test "assigns comma separated tags" do
     entry = Entry.create!(title: "Garden", url: "https://example.com/garden", tag_list: "Landscape, ecology, landscape")
 
