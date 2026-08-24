@@ -1,0 +1,124 @@
+.entry-card {
+  background: var(--color-surface);
+  break-inside: avoid;
+  display: inline-block;
+  margin: 0 0 12px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.entry-card__media {
+  align-items: center;
+  background: #deddd7;
+  color: var(--color-muted);
+  display: flex;
+  justify-content: center;
+  min-height: 80px;
+  overflow: hidden;
+  text-decoration: none;
+}
+
+.entry-card__media img {
+  display: block;
+  filter: grayscale(1) contrast(1.05);
+  height: auto;
+  transition: filter 160ms ease;
+  width: 100%;
+}
+
+.entry-card__media iframe {
+  aspect-ratio: 16 / 9;
+  border: 0;
+  display: block;
+  filter: grayscale(1);
+  width: 100%;
+}
+
+.entry-card__media > span {
+  align-items: center;
+  display: flex;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  justify-content: center;
+  min-height: 120px;
+  text-transform: uppercase;
+  width: 100%;
+}
+
+.entry-card:hover .entry-card__media img {
+  filter: grayscale(0) contrast(1);
+}
+
+.entry-card__body {
+  padding: 10px;
+}
+
+.entry-card__meta {
+  display: flex;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  gap: 8px;
+  justify-content: space-between;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.entry-card__source {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.entry-card__title {
+  font-size: clamp(15px, 1.4vw, 20px);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin: 12px 0 0;
+}
+
+.entry-card__title a {
+  text-decoration: none;
+}
+
+.entry-card__title a:hover {
+  text-decoration: underline;
+}
+
+.entry-card__excerpt {
+  font-size: 13px;
+  line-height: 1.35;
+  margin: 10px 0 0;
+}
+
+.entry-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin-top: 16px;
+}
+
+.entry-card__tag {
+  align-items: center;
+  display: inline-flex;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  gap: 5px;
+  text-decoration: none;
+}
+
+.entry-card__tag:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+  .entry-card__excerpt {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .entry-card__media img {
+    transition: none;
+  }
+}

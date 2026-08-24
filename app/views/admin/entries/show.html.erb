@@ -1,0 +1,34 @@
+<% content_for :title, "#{@entry.title} | Admin" %>
+<% content_for :body_class, "admin-page" %>
+
+<main class="shell shell--admin">
+  <%= render "admin/shared/header" %>
+
+  <section class="admin-heading">
+    <h1><%= @entry.title %></h1>
+    <%= link_to "Edit", edit_admin_entry_path(@entry), class: "button button--primary" %>
+  </section>
+
+  <%= render "image_preview", entry: @entry, lazy: false %>
+
+  <dl class="<%= class_names("admin-facts", "admin-facts--without-preview": @entry.embeddable_image_url.blank?) %>">
+    <dt>URL</dt>
+    <dd class="admin-facts__url"><%= link_to @entry.url, @entry.url, target: "_blank", rel: "noopener" %></dd>
+    <dt>Image URL</dt>
+    <dd class="admin-facts__url">
+      <% if @entry.image_url.present? %>
+        <%= link_to @entry.image_url, @entry.image_url, target: "_blank", rel: "noopener" %>
+      <% else %>
+        Not set
+      <% end %>
+    </dd>
+    <dt>Source</dt>
+    <dd><%= @entry.source_name %></dd>
+    <dt>Kind</dt>
+    <dd><%= @entry.media_kind %></dd>
+    <dt>Tags</dt>
+    <dd><%= @entry.tag_list %></dd>
+    <dt>Notes</dt>
+    <dd class="markdown notes"><%= render_markdown(@entry.notes) %></dd>
+  </dl>
+</main>

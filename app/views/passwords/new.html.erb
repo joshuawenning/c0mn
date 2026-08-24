@@ -1,0 +1,22 @@
+<% content_for :title, "Reset password | c0mn" %>
+<% content_for :body_class, "authentication-page" %>
+
+<main class="shell shell--authentication">
+  <header class="site-header">
+    <%= link_to "c0mn", root_path, class: "site-header__wordmark" %>
+  </header>
+
+  <section class="authentication-panel">
+    <p class="authentication-panel__eyebrow">Owner access</p>
+    <h1>Reset password</h1>
+
+    <%= form_with url: passwords_path, class: "authentication-form" do |form| %>
+      <div class="authentication-form__field">
+        <%= form.label :email_address, "Email" %>
+        <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", value: params[:email_address] %>
+      </div>
+
+      <%= form.submit "Email reset instructions", class: "button button--primary" %>
+    <% end %>
+  </section>
+</main>

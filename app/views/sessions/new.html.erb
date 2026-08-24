@@ -1,0 +1,27 @@
+<% content_for :title, "Sign in | c0mn" %>
+<% content_for :body_class, "authentication-page" %>
+
+<main class="shell shell--authentication">
+  <header class="site-header">
+    <%= link_to "c0mn", root_path, class: "site-header__wordmark" %>
+  </header>
+
+  <section class="authentication-panel">
+    <p class="authentication-panel__eyebrow">Owner access</p>
+    <h1>Sign in</h1>
+
+    <%= form_with url: session_path, class: "authentication-form" do |form| %>
+      <div class="authentication-form__field">
+        <%= form.label :email_address, "Email" %>
+        <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", value: params[:email_address] %>
+      </div>
+
+      <div class="authentication-form__field">
+        <%= form.label :password %>
+        <%= form.password_field :password, required: true, autocomplete: "current-password", maxlength: 72 %>
+      </div>
+
+      <%= form.submit "Sign in", class: "button button--primary" %>
+    <% end %>
+  </section>
+</main>

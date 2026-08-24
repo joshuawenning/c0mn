@@ -1,0 +1,42 @@
+.archive-search {
+  font-family: var(--font-mono);
+}
+
+.archive-search__label {
+  display: block;
+  font-size: 11px;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.archive-search__control {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.archive-search__input,
+.archive-search__submit {
+  appearance: none;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: 0;
+  color: inherit;
+  min-height: 44px;
+}
+
+.archive-search__input {
+  border-right: 0;
+  min-width: 0;
+  padding: 8px 12px;
+}
+
+.archive-search__submit {
+  cursor: pointer;
+  padding: 8px 16px;
+  text-transform: uppercase;
+}
+
+.archive-search__submit:hover {
+  background: var(--color-text);
+  color: var(--color-surface);
+}

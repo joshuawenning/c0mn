@@ -1,0 +1,15 @@
+.shell {
+  margin: 0 auto;
+  max-width: 1600px;
+  padding: 0 var(--space-gutter) 64px;
+}
+
+.shell--admin {
+  max-width: 1200px;
+}
+
+.collection {
+  margin: 0 auto;
+  max-width: 1800px;
+  padding: 0 var(--space-gutter) 64px;
+}

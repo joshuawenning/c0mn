@@ -1,0 +1,14 @@
+<header class="site-header site-header--admin">
+  <%= link_to admin_root_path, class: "site-header__wordmark" do %>
+    c0mn <span>admin</span>
+  <% end %>
+  <nav class="site-nav" aria-label="Admin">
+    <%= link_to "Public", root_path, class: "site-nav__link" %>
+    <% if current_page?(new_admin_entry_path) %>
+      <%= link_to "All entries", admin_root_path, class: "site-nav__link" %>
+    <% else %>
+      <%= link_to "New entry", new_admin_entry_path, class: "site-nav__link" %>
+    <% end %>
+    <%= button_to "Sign out", logout_path, method: :delete, class: "site-nav__link site-nav__button" %>
+  </nav>
+</header>

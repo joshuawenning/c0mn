@@ -1,0 +1,92 @@
+<% content_for :title, "c0mn" %>
+<% content_for :body_class, "collection-page" %>
+
+<main class="collection">
+  <header class="archive-header">
+    <div class="archive-header__masthead">
+      <div>
+        <%= link_to "c0mn", root_path, class: "archive-header__title" %>
+      </div>
+      <nav class="site-nav" aria-label="Primary">
+        <%= link_to "Collection", root_path, class: "site-nav__link site-nav__link--active" %>
+        <% if authenticated? && Current.user.platform_admin? %>
+          <%= link_to "Admin", admin_root_path, class: "site-nav__link" %>
+        <% end %>
+      </nav>
+    </div>
+
+    <div class="archive-header__lead">
+      <h1>Encounter something meaningful. Then, save it.</h1>
+      <%= form_with url: root_path, method: :get, class: "archive-search" do |form| %>
+        <%= hidden_field_tag :tag, @active_tag if @active_tag.present? %>
+        <%= form.label :q, "Search", class: "archive-search__label" %>
+        <div class="archive-search__control">
+          <%= form.search_field :q, value: @query, placeholder: "Title, note, source, tag...", autocomplete: "off", class: "archive-search__input" %>
+          <%= form.submit "Go", class: "archive-search__submit" %>
+        </div>
+      <% end %>
+    </div>
+
+    <nav class="tag-nav" aria-label="Collection tags">
+      <%= link_to root_path(q: @query.presence), class: class_names("tag-nav__item", "tag-nav__item--active": @active_tag.blank?) do %>
+        <span>All</span>
+        <span class="tag-nav__count"><%= @total_entry_count %></span>
+      <% end %>
+
+      <% @tags.each do |tag_record| %>
+        <%= link_to root_path(tag: tag_record.slug, q: @query.presence), class: class_names("tag-nav__item", "tag-nav__item--active": @active_tag == tag_record.slug) do %>
+          <%= tag_color_dot(tag_record) %>
+          <span><%= tag_record.name %></span>
+          <span class="tag-nav__count"><%= tag_record.try(:taggings_count).to_i %></span>
+        <% end %>
+      <% end %>
+    </nav>
+  </header>
+
+  <% if @entries.any? %>
+    <section class="entry-grid" aria-label="Collected entries">
+      <% @entries.each do |entry| %>
+        <article class="entry-card entry-card--<%= entry.media_kind %>">
+          <%= link_to entry_path(entry), class: "entry-card__media", aria: { label: entry.title } do %>
+            <%= render "preview", entry: entry, lazy: true, linked_fallback: false %>
+          <% end %>
+
+          <div class="entry-card__body">
+            <div class="entry-card__meta">
+              <span class="entry-card__source"><%= entry.source_name %></span>
+              <time datetime="<%= entry.collected_at.to_date.iso8601 %>"><%= entry.collected_at.to_date.to_fs(:short) %></time>
+            </div>
+            <h2 class="entry-card__title"><%= link_to entry.title, entry_path(entry) %></h2>
+            <% if entry.notes.present? %>
+              <p class="entry-card__excerpt"><%= truncate(strip_tags(render_markdown(entry.notes)), length: 150) %></p>
+            <% end %>
+
+            <div class="entry-card__tags" aria-label="Tags">
+              <% entry.tags.each do |tag_record| %>
+                <%= link_to root_path(tag: tag_record.slug), class: "entry-card__tag" do %>
+                  <%= tag_color_dot(tag_record) %>
+                  <span><%= tag_record.name %></span>
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+        </article>
+      <% end %>
+    </section>
+
+    <% if @total_pages > 1 %>
+      <nav class="pagination" aria-label="Collection pages">
+        <%= link_to "Previous", root_path(q: @query.presence, tag: @active_tag.presence, page: @page - 1), class: "button" if @page > 1 %>
+        <span class="pagination__status">Page <%= @page %> of <%= @total_pages %></span>
+        <%= link_to "Next", root_path(q: @query.presence, tag: @active_tag.presence, page: @page + 1), class: "button" if @page < @total_pages %>
+      </nav>
+    <% end %>
+  <% else %>
+    <section class="empty-state empty-state--collection">
+      <p>No entries found.</p>
+      <% if authenticated? && Current.user.platform_admin? %>
+        <%= link_to "Add the first one", new_admin_entry_path, class: "button" %>
+      <% end %>
+    </section>
+  <% end %>
+</main>

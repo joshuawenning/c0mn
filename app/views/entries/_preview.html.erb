@@ -1,0 +1,9 @@
+<% if (image_url = entry.embeddable_image_url) %>
+  <%= image_tag image_url, alt: "", loading: lazy ? "lazy" : nil %>
+<% elsif (embed_url = entry.youtube_embed_url) %>
+  <%= tag.iframe src: embed_url, title: entry.title, loading: lazy ? "lazy" : nil, allowfullscreen: true %>
+<% elsif linked_fallback %>
+  <%= link_to entry.url, entry.url, target: "_blank", rel: "noopener" %>
+<% else %>
+  <span><%= entry.media_kind %></span>
+<% end %>

@@ -1,0 +1,44 @@
+<% content_for :title, "#{@entry.title} | c0mn" %>
+<% content_for :body_class, "entry-page" %>
+
+<main class="shell shell--detail">
+  <header class="site-header">
+    <%= link_to "c0mn", root_path, class: "site-header__wordmark" %>
+    <nav class="site-nav" aria-label="Primary">
+      <%= link_to "Collection", root_path, class: "site-nav__link" %>
+      <% if authenticated? && Current.user.platform_admin? %>
+        <%= link_to "Admin", admin_root_path, class: "site-nav__link" %>
+      <% end %>
+    </nav>
+  </header>
+
+  <article class="entry-detail">
+    <aside class="entry-detail__meta">
+      <p class="entry-detail__source"><%= @entry.source_name %></p>
+      <p class="entry-detail__kind"><%= @entry.media_kind %></p>
+      <time class="entry-detail__date" datetime="<%= @entry.collected_at.to_date.iso8601 %>"><%= @entry.collected_at.to_date.to_fs(:long) %></time>
+      <div class="entry-detail__tags" aria-label="Tags">
+        <% @entry.tags.each do |tag_record| %>
+          <%= link_to root_path(tag: tag_record.slug), class: "entry-detail__tag" do %>
+            <%= tag_color_dot(tag_record) %>
+            <span><%= tag_record.name %></span>
+          <% end %>
+        <% end %>
+      </div>
+    </aside>
+
+    <div class="entry-detail__main">
+      <h1 class="entry-detail__title"><%= @entry.title %></h1>
+
+      <div class="entry-detail__media">
+        <%= render "preview", entry: @entry, lazy: false, linked_fallback: true %>
+      </div>
+
+      <% if @entry.notes.present? %>
+        <div class="markdown notes entry-detail__notes"><%= render_markdown(@entry.notes) %></div>
+      <% end %>
+
+      <%= link_to @entry.url, @entry.url, target: "_blank", rel: "noopener", class: "entry-detail__url" %>
+    </div>
+  </article>
+</main>

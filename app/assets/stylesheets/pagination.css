@@ -1,0 +1,15 @@
+.pagination {
+  align-items: center;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 24px;
+  padding-top: 24px;
+}
+
+.pagination__status {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+}

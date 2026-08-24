@@ -1,0 +1,14 @@
+<% content_for :title, "Edit #{@entry.title} | Admin" %>
+<% content_for :body_class, "admin-page" %>
+
+<main class="shell shell--admin">
+  <%= render "admin/shared/header" %>
+
+  <section class="admin-heading">
+    <h1>Edit entry</h1>
+  </section>
+
+  <%= render "image_preview", entry: @entry, lazy: false %>
+
+  <%= render "form", entry: @entry %>
+</main>

@@ -1,0 +1,31 @@
+<% content_for :title, "Admin | c0mn" %>
+<% content_for :body_class, "admin-page" %>
+
+<main class="shell shell--admin">
+  <%= render "admin/shared/header" %>
+
+  <section class="admin-heading">
+    <h1>Collection entries</h1>
+    <%= link_to "New entry", new_admin_entry_path, class: "button button--primary" %>
+  </section>
+
+  <section class="admin-list">
+    <% @entries.each do |entry| %>
+      <article id="<%= dom_id(entry) %>" class="admin-row admin-list__row">
+        <%= render "admin/entries/image_preview", entry: entry, lazy: true, placeholder: true %>
+        <div class="admin-list__content">
+          <div class="admin-list__meta">
+            <span><%= entry.source_name %></span>
+            <time datetime="<%= entry.collected_at.to_date.iso8601 %>"><%= entry.collected_at.to_date.to_fs(:short) %></time>
+          </div>
+          <h2 class="admin-list__title"><%= link_to entry.title, admin_entry_path(entry) %></h2>
+          <p class="admin-list__url"><%= entry.url %></p>
+        </div>
+        <div class="admin-list__actions">
+          <%= link_to "Edit", edit_admin_entry_path(entry), class: "button" %>
+          <%= button_to "Delete", admin_entry_path(entry), method: :delete, class: "button button--danger", form: { data: { turbo_confirm: "Delete this entry?" } } %>
+        </div>
+      </article>
+    <% end %>
+  </section>
+</main>

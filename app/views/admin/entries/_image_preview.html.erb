@@ -1,0 +1,14 @@
+<% if (image_url = entry.embeddable_image_url) %>
+  <div class="admin-entry-preview admin-preview">
+    <%= image_tag image_url, alt: "Preview of #{entry.title}", loading: lazy ? "lazy" : nil %>
+  </div>
+<% elsif local_assigns.fetch(:placeholder, false) %>
+  <div class="admin-entry-preview admin-preview admin-preview--placeholder" aria-hidden="true">
+    <span class="admin-preview__placeholder">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M14 5h5v5M19 5l-8 8M18 13v5a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" />
+      </svg>
+      <span><%= entry.media_kind %></span>
+    </span>
+  </div>
+<% end %>
