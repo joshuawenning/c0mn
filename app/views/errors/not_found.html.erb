@@ -1,0 +1,23 @@
+<% content_for :title, "Page not found | c0mn" %>
+<% content_for :body_class, "not-found-page" %>
+<% content_for :head do %>
+  <meta name="robots" content="noindex, nofollow">
+<% end %>
+
+<main class="not-found">
+  <header class="not-found__header">
+    <%= link_to "c0mn", root_path, class: "site-header__wordmark" %>
+    <span class="not-found__code">error / 404</span>
+  </header>
+
+  <section class="not-found__body">
+    <p class="not-found__number" aria-hidden="true">404</p>
+
+    <div class="not-found__message">
+      <p class="not-found__eyebrow">Missing entry</p>
+      <h1>Nothing collected here.</h1>
+      <p>The page may have moved, or the address may be incomplete.</p>
+      <%= link_to "Return to the collection", root_path, class: "not-found__link" %>
+    </div>
+  </section>
+</main>

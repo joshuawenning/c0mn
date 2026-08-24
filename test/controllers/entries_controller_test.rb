@@ -56,7 +56,7 @@ class EntriesControllerTest < ActionDispatch::IntegrationTest
     get root_path
 
     assert_response :success
-    assert_select "link[rel='stylesheet']", 17
+    assert_select "link[rel='stylesheet']", 18
     assert_select "link[href^='/assets/base-'][href$='.css']"
     assert_select "link[href*='application.css']", count: 0
     assert_select "link[href*='?v=']", count: 0
