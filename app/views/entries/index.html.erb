@@ -89,4 +89,12 @@
       <% end %>
     </section>
   <% end %>
+
+  <footer class="site-footer">
+    <p class="site-footer__copyright">c0mn &copy; <%= Date.current.year %></p>
+    <p class="site-footer__credit">
+      Project by <%= link_to "@joshuawenning", "https://joshuawenning.com/", target: "_blank", rel: "noopener" %>
+    </p>
+    <%= link_to "View Source", "https://github.com/joshuawenning/c0mn", class: "site-footer__source", target: "_blank", rel: "noopener" %>
+  </footer>
 </main>

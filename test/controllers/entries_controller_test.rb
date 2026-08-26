@@ -15,6 +15,9 @@ class EntriesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".entry-card", 1
     assert_select ".entry-card__media img"
     assert_select "a[href='#{admin_root_path}']", count: 0
+    assert_select ".site-footer__copyright", text: "c0mn © #{Date.current.year}"
+    assert_select ".site-footer__credit a[href='https://joshuawenning.com/']", text: "@joshuawenning"
+    assert_select ".site-footer__source[href='https://github.com/joshuawenning/c0mn']", text: "View Source"
   end
 
   test "shows admin navigation only to the signed-in owner" do
@@ -56,7 +59,7 @@ class EntriesControllerTest < ActionDispatch::IntegrationTest
     get root_path
 
     assert_response :success
-    assert_select "link[rel='stylesheet']", 18
+    assert_select "link[rel='stylesheet']", 19
     assert_select "link[href^='/assets/base-'][href$='.css']"
     assert_select "link[href*='application.css']", count: 0
     assert_select "link[href*='?v=']", count: 0
