@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>System status | c0mn</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, width=device-width">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" href="/health.css">
+  </head>
+
+  <body>
+    <main class="health">
+      <header class="health__header">
+        <a class="health__wordmark" href="/">c0mn</a>
+        <span class="health__endpoint">system / up</span>
+      </header>
+
+      <section class="health__summary">
+        <div class="health__state">
+          <span class="health__dot" aria-hidden="true"></span>
+          <h1>Online</h1>
+        </div>
+        <p>Application process is responding normally.</p>
+      </section>
+
+      <dl class="health__facts">
+        <div>
+          <dt>Service</dt>
+          <dd>c0mn</dd>
+        </div>
+        <div>
+          <dt>Hosting</dt>
+          <dd><%= @hosting %></dd>
+        </div>
+        <div>
+          <dt>Architecture</dt>
+          <dd><%= @architecture %></dd>
+        </div>
+        <div>
+          <dt>Release</dt>
+          <dd><%= @release %></dd>
+        </div>
+        <div>
+          <dt>Checked</dt>
+          <dd><time datetime="<%= @checked_at.iso8601 %>"><%= @checked_at.utc.strftime("%Y-%m-%d %H:%M:%S UTC") %></time></dd>
+        </div>
+      </dl>
+
+      <footer class="health__footer">
+        <a href="/">Return to the collection</a>
+        <span>HTTP 200</span>
+      </footer>
+    </main>
+  </body>
+</html>
