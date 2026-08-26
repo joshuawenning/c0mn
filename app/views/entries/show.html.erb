@@ -6,6 +6,7 @@
     <%= link_to "c0mn", root_path, class: "site-header__wordmark" %>
     <nav class="site-nav" aria-label="Primary">
       <%= link_to "Collection", root_path, class: "site-nav__link" %>
+      <%= link_to "About", about_path, class: "site-nav__link" %>
       <% if authenticated? && Current.user.platform_admin? %>
         <%= link_to "Admin", admin_root_path, class: "site-nav__link" %>
       <% end %>

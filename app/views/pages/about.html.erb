@@ -1,0 +1,110 @@
+<% content_for :title, "About | c0mn" %>
+<% content_for :body_class, "about-page" %>
+
+<main class="shell shell--about">
+  <header class="site-header">
+    <%= link_to "c0mn", root_path, class: "site-header__wordmark" %>
+    <nav class="site-nav" aria-label="Primary">
+      <%= link_to "Collection", root_path, class: "site-nav__link" %>
+      <%= link_to "About", about_path, class: "site-nav__link site-nav__link--active" %>
+      <% if authenticated? && Current.user.platform_admin? %>
+        <%= link_to "Admin", admin_root_path, class: "site-nav__link" %>
+      <% end %>
+    </nav>
+  </header>
+
+  <section class="about-hero">
+    <p class="about-hero__eyebrow">A commonplace for the web</p>
+    <h1>The URL is the raw material.</h1>
+    <div class="about-hero__copy">
+      <p>c0mn is a visual archive for collecting inspiration without turning every discovery into a new piece of content.</p>
+      <p>Save the address of something meaningful. The original source stays intact while tags and notes give it a place in a collection that becomes more useful over time.</p>
+    </div>
+  </section>
+
+  <section class="about-process" aria-labelledby="process-title">
+    <div class="about-section-heading">
+      <p>How it works</p>
+      <h2 id="process-title">From open tab to lasting reference.</h2>
+    </div>
+
+    <ol class="about-process__steps">
+      <li>
+        <span>01 / Capture</span>
+        <h3>Start with a URL.</h3>
+        <p>Paste a link to an image, article, video, song, tool, or anything else worth returning to.</p>
+      </li>
+      <li>
+        <span>02 / Context</span>
+        <h3>Add what matters.</h3>
+        <p>c0mn infers the source and media type. Add tags and Markdown notes to record why it belongs.</p>
+      </li>
+      <li>
+        <span>03 / Connect</span>
+        <h3>Browse the collection.</h3>
+        <p>Search and filter a visual masonry archive where relationships emerge across sources and subjects.</p>
+      </li>
+    </ol>
+  </section>
+
+  <section class="about-system" aria-labelledby="system-title">
+    <div class="about-section-heading">
+      <p>Under the hood</p>
+      <h2 id="system-title">Small, direct, and independently operated.</h2>
+    </div>
+
+    <div class="about-system__table-wrap">
+      <table class="about-system__table">
+        <thead>
+          <tr>
+            <th scope="col">Layer</th>
+            <th scope="col">Technology</th>
+            <th scope="col">Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Application</th>
+            <td>Ruby <%= RUBY_VERSION %> / Rails <%= Rails.version %></td>
+            <td>Server-rendered product and data model</td>
+          </tr>
+          <tr>
+            <th scope="row">Assets</th>
+            <td>Propshaft / Vanilla CSS</td>
+            <td>Independent, fingerprinted component styles</td>
+          </tr>
+          <tr>
+            <th scope="row">Data</th>
+            <td>SQLite / Solid Cache / Queue / Cable</td>
+            <td>Persistent application and background data</td>
+          </tr>
+          <tr>
+            <th scope="row">Deployment</th>
+            <td>Docker / Kamal</td>
+            <td>Repeatable container releases</td>
+          </tr>
+          <tr>
+            <th scope="row">Server</th>
+            <td>Hetzner Cloud / AMD64</td>
+            <td>Single-host infrastructure</td>
+          </tr>
+          <tr>
+            <th scope="row">Status</th>
+            <td>
+              <span class="about-status"><span class="about-status__dot"></span>Operational</span>
+            </td>
+            <td>
+              <%= link_to "Live health check", rails_health_check_path, class: "about-system__health" %>
+              <time datetime="<%= @status_checked_at.iso8601 %>">Checked <%= @status_checked_at.to_fs(:time) %></time>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer class="about-footer">
+    <p>Built and maintained by <%= link_to "@joshuawenning", "https://joshuawenning.com/", target: "_blank", rel: "noopener" %></p>
+    <%= link_to "View source", "https://github.com/joshuawenning/c0mn", target: "_blank", rel: "noopener" %>
+  </footer>
+</main>
