@@ -60,17 +60,26 @@ class EntriesControllerTest < ActionDispatch::IntegrationTest
     get root_path
 
     assert_response :success
-    assert_select "link[rel='stylesheet']", 20
+    assert_select "link[rel='stylesheet']", 22
     assert_select "link[href^='/assets/base-'][href$='.css']"
     assert_select "link[href*='application.css']", count: 0
     assert_select "link[href*='?v=']", count: 0
     assert_select "link[data-turbo-track]", count: 0
 
-    get css_select("link[href^='/assets/base-']").first["href"]
+    base_stylesheet = css_select("link[href^='/assets/base-']").first["href"]
+    variables_stylesheet = css_select("link[href^='/assets/variables-']").first["href"]
+
+    get base_stylesheet
 
     assert_response :success
     assert_includes response.media_type, "text/css"
     assert_includes response.body, "@font-face"
+
+    get variables_stylesheet
+
+    assert_response :success
+    assert_includes response.body, "--border-default: 1px solid var(--color-border)"
+    assert_not_includes response.body, "--border-default: var(--border-default)"
   end
 
   test "renders entry notes as sanitized Markdown" do

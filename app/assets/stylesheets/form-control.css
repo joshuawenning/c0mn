@@ -1,0 +1,36 @@
+@layer components {
+  .form-field {
+    min-width: 0;
+  }
+
+  .form-field label {
+    display: block;
+    font-family: var(--font-sans);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .form-control {
+    appearance: none;
+    background: var(--color-surface);
+    border: var(--border-default);
+    border-radius: 0;
+    color: inherit;
+    font-family: var(--font-mono);
+    padding: 10px;
+    width: 100%;
+  }
+
+  .form-control--single-line {
+    min-height: var(--control-min-height);
+  }
+
+  .form-field small {
+    color: var(--color-muted);
+    display: block;
+    font-family: var(--font-sans);
+    font-size: var(--font-size-xs);
+    margin-top: 6px;
+  }
+}

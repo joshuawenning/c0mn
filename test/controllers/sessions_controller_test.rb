@@ -8,6 +8,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "h1", text: "Sign in"
     assert_select "a[href='#{admin_root_path}']", count: 0
+    assert_select ".form-field .form-control", count: 2
   end
 
   test "create with valid credentials" do

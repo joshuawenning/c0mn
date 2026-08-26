@@ -1,29 +1,31 @@
-.entry-grid {
-  column-count: 5;
-  column-gap: 12px;
-  padding-top: 12px;
-}
-
-@media (max-width: 1280px) {
+@layer layout {
   .entry-grid {
-    column-count: 4;
+    column-count: 5;
+    column-gap: 12px;
+    padding-top: var(--space-3);
   }
-}
 
-@media (max-width: 960px) {
-  .entry-grid {
-    column-count: 3;
+  @media (width <= 80rem) {
+    .entry-grid {
+      column-count: 4;
+    }
   }
-}
 
-@media (max-width: 640px) {
-  .entry-grid {
-    column-count: 2;
+  @media (width <= 60rem) {
+    .entry-grid {
+      column-count: 3;
+    }
   }
-}
 
-@media (max-width: 420px) {
-  .entry-grid {
-    column-count: 1;
+  @media (width <= 40rem) {
+    .entry-grid {
+      column-count: 2;
+    }
+  }
+
+  @media (width <= 26.25rem) {
+    .entry-grid {
+      column-count: 1;
+    }
   }
 }

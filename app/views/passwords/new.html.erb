@@ -11,9 +11,9 @@
     <h1>Reset password</h1>
 
     <%= form_with url: passwords_path, class: "authentication-form" do |form| %>
-      <div class="authentication-form__field">
+      <div class="form-field authentication-form__field">
         <%= form.label :email_address, "Email" %>
-        <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", value: params[:email_address] %>
+        <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", value: params[:email_address], class: "form-control form-control--single-line" %>
       </div>
 
       <%= form.submit "Email reset instructions", class: "button button--primary" %>

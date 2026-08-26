@@ -1,19 +1,21 @@
-.empty-state {
-  border-bottom: 1px solid var(--color-border);
-  padding: 64px 0;
-  text-align: center;
-}
+@layer overrides {
+  .empty-state {
+    border-bottom: var(--border-default);
+    padding: var(--space-9) 0;
+    text-align: center;
+  }
 
-.flash {
-  background: var(--color-text);
-  color: var(--color-surface);
-  font-family: var(--font-mono);
-  font-size: 12px;
-  margin: 0;
-  padding: 10px var(--space-gutter);
-  text-align: center;
-}
+  .flash {
+    background: var(--color-text);
+    color: var(--color-surface);
+    font-family: var(--font-mono);
+    font-size: var(--font-size-sm);
+    margin: 0;
+    padding: 10px var(--space-gutter);
+    text-align: center;
+  }
 
-.flash--alert {
-  background: var(--color-danger);
+  .flash--alert {
+    background: var(--color-danger);
+  }
 }

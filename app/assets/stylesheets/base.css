@@ -1,53 +1,59 @@
-@font-face {
-  font-display: swap;
-  font-family: "Ioskeley Mono";
-  font-style: normal;
-  font-weight: 400;
-  src: url("/IoskeleyMono-Regular.woff2") format("woff2");
+@layer reset {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
 }
 
-* {
-  box-sizing: border-box;
-}
+@layer base {
+  @font-face {
+    font-display: swap;
+    font-family: "Ioskeley Mono";
+    font-style: normal;
+    font-weight: 400;
+    src: url("/IoskeleyMono-Regular.woff2") format("woff2");
+  }
 
-html {
-  background: var(--color-paper);
-  color: var(--color-text);
-}
+  html {
+    background: var(--color-paper);
+    color: var(--color-text);
+  }
 
-body {
-  background: var(--color-paper);
-  color: var(--color-text);
-  font-family: var(--font-sans);
-  font-size: 16px;
-  line-height: 1.4;
-  margin: 0;
-  min-height: 100vh;
-}
+  body {
+    background: var(--color-paper);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-body);
+    margin: 0;
+    min-height: 100vh;
+  }
 
-a {
-  color: inherit;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 3px;
-}
+  a {
+    color: inherit;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
 
-button,
-input,
-select,
-textarea {
-  font: inherit;
-}
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
 
-img {
-  max-width: 100%;
-}
+  img {
+    max-width: 100%;
+  }
 
-::selection {
-  background: var(--color-accent);
-  color: var(--color-surface);
-}
+  ::selection {
+    background: var(--color-accent);
+    color: var(--color-surface);
+  }
 
-:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 3px;
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+  }
 }

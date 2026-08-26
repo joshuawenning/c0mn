@@ -62,6 +62,7 @@ class Admin::EntriesControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-controller='markdown-editor']"
     assert_select "textarea[data-markdown-editor-target='input'][name='entry[notes]']"
     assert_select "[role='toolbar'] button", count: 5
+    assert_select ".form-field .form-control", count: 6
   end
 
   test "creates an entry" do

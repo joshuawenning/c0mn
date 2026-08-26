@@ -7,44 +7,44 @@
           <li><%= message %></li>
         <% end %>
       </ul>
-    </div>`
+    </div>
   <% end %>
 
   <div class="entry-form__grid">
-    <div class="entry-form__field entry-form__field--wide entry-form__field--url">
+    <div class="form-field entry-form__field entry-form__field--wide entry-form__field--url">
       <%= form.label :url, "URL" %>
-      <%= form.url_field :url, required: true, placeholder: "https://..." %>
+      <%= form.url_field :url, required: true, placeholder: "https://...", class: "form-control form-control--single-line" %>
     </div>
 
-    <div class="entry-form__field entry-form__field--wide entry-form__field--url">
+    <div class="form-field entry-form__field entry-form__field--wide entry-form__field--url">
       <%= form.label :image_url, "Accompanying Image URL" %>
-      <%= form.url_field :image_url, placeholder: "https://... Optional image for non-image entries" %>
+      <%= form.url_field :image_url, placeholder: "https://... Optional image for non-image entries", class: "form-control form-control--single-line" %>
     </div>
 
-    <div class="entry-form__field entry-form__field--wide">
+    <div class="form-field entry-form__field entry-form__field--wide">
       <%= form.label :title %>
-      <%= form.text_field :title, required: true %>
+      <%= form.text_field :title, required: true, class: "form-control form-control--single-line" %>
     </div>
 
     <% if entry.persisted? %>
-      <div class="entry-form__field">
+      <div class="form-field entry-form__field">
         <%= form.label :source_name %>
-        <%= form.text_field :source_name, value: entry.source_name_overridden? ? entry.source_name : "", placeholder: entry.source_name.presence || "inferred from URL" %>
+        <%= form.text_field :source_name, value: entry.source_name_overridden? ? entry.source_name : "", placeholder: entry.source_name.presence || "inferred from URL", class: "form-control form-control--single-line" %>
         <small>Leave blank to infer from the URL.</small>
       </div>
     <% end %>
 
-    <div class="entry-form__field">
+    <div class="form-field entry-form__field">
       <%= form.label :media_kind %>
-      <%= form.select :media_kind, [ [ "Auto", "" ] ] + Entry::MEDIA_KINDS.map { |kind| [ kind.titleize, kind ] }, selected: entry.media_kind_overridden? ? entry.media_kind : "" %>
+      <%= form.select :media_kind, [ [ "Auto", "" ] ] + Entry::MEDIA_KINDS.map { |kind| [ kind.titleize, kind ] }, { selected: entry.media_kind_overridden? ? entry.media_kind : "" }, class: "form-control form-control--single-line" %>
     </div>
 
-    <div class="entry-form__field entry-form__field--wide entry-form__field--tags">
+    <div class="form-field entry-form__field entry-form__field--wide entry-form__field--tags">
       <%= form.label :tag_list, "Tags" %>
-      <%= form.text_field :tag_list, value: entry.tag_list, placeholder: "architecture, theology, type" %>
+      <%= form.text_field :tag_list, value: entry.tag_list, placeholder: "architecture, theology, type", class: "form-control form-control--single-line" %>
     </div>
 
-    <div class="entry-form__field entry-form__field--wide markdown-editor" data-controller="markdown-editor">
+    <div class="form-field entry-form__field entry-form__field--wide markdown-editor" data-controller="markdown-editor">
       <%= form.label :notes %>
       <div class="markdown-editor__toolbar" role="toolbar" aria-label="Markdown formatting">
         <button type="button" data-action="markdown-editor#format" data-markdown-editor-style-param="bold" title="Bold"><strong>B</strong></button>
@@ -53,7 +53,7 @@
         <button type="button" data-action="markdown-editor#format" data-markdown-editor-style-param="link" title="Link">Link</button>
         <button type="button" data-action="markdown-editor#format" data-markdown-editor-style-param="list" title="Bulleted list">List</button>
       </div>
-      <%= form.text_area :notes, rows: 10, data: { markdown_editor_target: "input" } %>
+      <%= form.text_area :notes, rows: 10, class: "form-control", data: { markdown_editor_target: "input" } %>
       <small>Markdown supported.</small>
     </div>
   </div>

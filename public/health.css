@@ -146,7 +146,7 @@ a {
   color: var(--accent);
 }
 
-@media (max-width: 720px) {
+@media (width <= 48rem) {
   .health__facts {
     grid-template-columns: 1fr 1fr;
   }

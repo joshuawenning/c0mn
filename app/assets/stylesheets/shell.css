@@ -1,15 +1,17 @@
-.shell {
-  margin: 0 auto;
-  max-width: 1600px;
-  padding: 0 var(--space-gutter) 64px;
-}
+@layer layout {
+  .shell {
+    margin: 0 auto;
+    max-width: 1600px;
+    padding: 0 var(--space-gutter) var(--space-9);
+  }
 
-.shell--admin {
-  max-width: 1200px;
-}
+  .shell--admin {
+    max-width: 1200px;
+  }
 
-.collection {
-  margin: 0 auto;
-  max-width: 1800px;
-  padding: 0 var(--space-gutter) 64px;
+  .collection {
+    margin: 0 auto;
+    max-width: 1800px;
+    padding: 0 var(--space-gutter) var(--space-9);
+  }
 }
