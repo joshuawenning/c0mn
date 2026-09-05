@@ -1,7 +1,7 @@
 module ApplicationHelper
   EXTERNAL_LINK_TAGS = %w[a].freeze
   EXTERNAL_LINK_ATTRIBUTES = %w[class href rel target].freeze
-  MARKDOWN_TAGS = %w[p br strong em a ul ol li blockquote code pre h2 h3 h4 hr].freeze
+  MARKDOWN_TAGS = %w[p br strong em a ul ol li blockquote code pre h2 h3 h4 h5 h6 hr].freeze
   MARKDOWN_ATTRIBUTES = %w[href title].freeze
 
   def external_link_to(label, url, class_name: nil, https_only: false)
@@ -23,6 +23,10 @@ module ApplicationHelper
       render: { unsafe: false, ignore_empty_links: true },
       extension: { header_ids: nil }
     })
+    html.gsub!(/<(\/?)h([1-6])>/) do
+      closing, level = Regexp.last_match.captures
+      "<#{closing}h#{[ level.to_i + 1, 6 ].min}>"
+    end
 
     sanitize html, tags: MARKDOWN_TAGS, attributes: MARKDOWN_ATTRIBUTES
   end

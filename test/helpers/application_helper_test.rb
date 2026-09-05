@@ -25,12 +25,31 @@ class ApplicationHelperTest < ActionView::TestCase
   end
 
   test "renders and sanitizes Markdown" do
-    html = render_markdown("## Heading\n\n**Bold** and [safe](https://example.com).\n\n<script>alert('no')</script>")
+    html = render_markdown("# Heading\n\n**Bold** and [safe](https://example.com).\n\n<script>alert('no')</script>")
 
     assert_includes html, "<h2>Heading</h2>"
     assert_includes html, "<strong>Bold</strong>"
     assert_includes html, '<a href="https://example.com">safe</a>'
     assert_no_match(/<script/i, html)
+  end
+
+  test "shifts Markdown headings while keeping h1 reserved" do
+    html = render_markdown(<<~MARKDOWN)
+      # Level one
+      ## Level two
+      ### Level three
+      #### Level four
+      ##### Level five
+      ###### Level six
+    MARKDOWN
+
+    assert_includes html, "<h2>Level one</h2>"
+    assert_includes html, "<h3>Level two</h3>"
+    assert_includes html, "<h4>Level three</h4>"
+    assert_includes html, "<h5>Level four</h5>"
+    assert_includes html, "<h6>Level five</h6>"
+    assert_includes html, "<h6>Level six</h6>"
+    assert_no_match(/<h1[ >]/i, html)
   end
 
   test "rejects unsafe Markdown links" do

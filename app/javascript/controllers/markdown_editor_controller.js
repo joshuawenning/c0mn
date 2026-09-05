@@ -9,10 +9,10 @@ export default class extends Controller {
     const end = input.selectionEnd
     const selected = input.value.slice(start, end)
     const formats = {
-      bold: ["**", "**", "bold text"],
-      italic: ["_", "_", "italic text"],
-      heading: ["## ", "", "Heading"],
-      link: ["[", "](https://)", "link text"]
+      bold: ["**", "**", "Bold text"],
+      italic: ["_", "_", "Italic text"],
+      heading: ["# ", "", "Heading"],
+      link: ["[", "](https://)", "Link text"]
     }
 
     let replacement

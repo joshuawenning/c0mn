@@ -85,7 +85,7 @@ class EntriesControllerTest < ActionDispatch::IntegrationTest
     entry = Entry.create!(
       title: "Notes",
       url: "https://example.com/notes",
-      notes: "## Context\n\nA **useful** note. <script>alert('no')</script>"
+      notes: "# Context\n\nA **useful** note. <script>alert('no')</script>"
     )
 
     get entry_path(entry)
