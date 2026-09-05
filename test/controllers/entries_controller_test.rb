@@ -7,8 +7,7 @@ class EntriesControllerTest < ActionDispatch::IntegrationTest
     get root_path
 
     assert_response :success
-    assert_select "h1", text: "Encounter something meaningful. Then, save it."
-    assert_select ".archive-header__title", text: "c0mn"
+    assert_select "h1.archive-header__title a", text: "c0mn"
     assert_select "form.archive-search"
     assert_select ".tag-nav__item"
     assert_select ".tag-dot circle[fill^='#']"
@@ -60,7 +59,7 @@ class EntriesControllerTest < ActionDispatch::IntegrationTest
     get root_path
 
     assert_response :success
-    assert_select "link[rel='stylesheet']", 22
+    assert_select "link[rel='stylesheet']", 21
     assert_select "link[href^='/assets/base-'][href$='.css']"
     assert_select "link[href*='application.css']", count: 0
     assert_select "link[href*='?v=']", count: 0

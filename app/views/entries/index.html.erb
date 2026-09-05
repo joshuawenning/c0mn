@@ -4,20 +4,9 @@
 <main class="collection">
   <header class="archive-header">
     <div class="archive-header__masthead">
-      <div>
-        <%= link_to "c0mn", root_path, class: "archive-header__title" %>
-      </div>
-      <nav class="site-nav" aria-label="Primary">
-        <%= link_to "Collection", root_path, class: "site-nav__link site-nav__link--active" %>
-        <%= link_to "About", about_path, class: "site-nav__link" %>
-        <% if authenticated? && Current.user.platform_admin? %>
-          <%= link_to "Admin", admin_root_path, class: "site-nav__link" %>
-        <% end %>
-      </nav>
-    </div>
-
-    <div class="archive-header__lead">
-      <h1>Encounter something meaningful. Then, save it.</h1>
+      <h1 class="archive-header__title">
+        <%= link_to "c0mn", root_path %>
+      </h1>
       <%= form_with url: root_path, method: :get, class: "archive-search" do |form| %>
         <%= hidden_field_tag :tag, @active_tag if @active_tag.present? %>
         <%= form.label :q, "Search", class: "archive-search__label" %>
@@ -26,6 +15,13 @@
           <%= form.submit "Go", class: "archive-search__submit" %>
         </div>
       <% end %>
+      <nav class="site-nav" aria-label="Primary">
+        <%= link_to "Collection", root_path, class: "site-nav__link site-nav__link--active" %>
+        <%= link_to "About", about_path, class: "site-nav__link" %>
+        <% if authenticated? && Current.user.platform_admin? %>
+          <%= link_to "Admin", admin_root_path, class: "site-nav__link" %>
+        <% end %>
+      </nav>
     </div>
 
     <nav class="tag-nav" aria-label="Collection tags">
