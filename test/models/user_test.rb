@@ -15,4 +15,19 @@ class UserTest < ActiveSupport::TestCase
     user.username = "not allowed!"
     assert_not user.valid?
   end
+
+  test "rolls back a password reset when session revocation fails" do
+    user = users(:owner)
+    original_digest = user.password_digest
+    sessions = user.sessions
+    sessions.define_singleton_method(:delete_all) do
+      raise ActiveRecord::StatementInvalid, "database unavailable"
+    end
+
+    assert_raises ActiveRecord::StatementInvalid do
+      user.reset_password(password: "new secure password", password_confirmation: "new secure password")
+    end
+
+    assert_equal original_digest, user.reload.password_digest
+  end
 end
