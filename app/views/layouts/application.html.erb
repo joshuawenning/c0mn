@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
+    <meta charset="utf-8">
     <title><%= content_for(:title) || "c0mn" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -46,10 +47,10 @@
 
   <body class="<%= content_for(:body_class) %>">
     <% if notice.present? %>
-      <p class="flash flash--notice"><%= notice %></p>
+      <p class="flash flash--notice" role="status" aria-live="polite" aria-atomic="true"><%= notice %></p>
     <% end %>
     <% if alert.present? %>
-      <p class="flash flash--alert"><%= alert %></p>
+      <p class="flash flash--alert" role="alert" aria-atomic="true"><%= alert %></p>
     <% end %>
 
     <%= yield %>

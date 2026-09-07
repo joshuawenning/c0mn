@@ -12,7 +12,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".about-system__table", text: /Hetzner Cloud \/ AMD64/
     assert_select ".about-status", text: /Operational/
     assert_select "a[href='#{rails_health_check_path}']", text: "Live health check"
-    assert_select "a.site-nav__link--active[href='#{about_path}']", text: "About"
+    assert_select "a.site-nav__link--active[aria-current='page'][href='#{about_path}']", text: "About"
     assert_select "a[href='#{admin_root_path}']", count: 0
   end
 end

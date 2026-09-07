@@ -1,6 +1,8 @@
 <% content_for :title, "c0mn" %>
 <% content_for :body_class, "collection-page" %>
 
+<%= link_to "Skip to entries", "#collection-entries", class: "skip-link" %>
+
 <main class="collection">
   <header class="archive-header">
     <div class="archive-header__masthead">
@@ -16,7 +18,7 @@
         </div>
       <% end %>
       <nav class="site-nav" aria-label="Primary">
-        <%= link_to "Collection", root_path, class: "site-nav__link site-nav__link--active" %>
+        <%= link_to "Collection", root_path, class: "site-nav__link site-nav__link--active", aria: { current: "page" } %>
         <%= link_to "About", about_path, class: "site-nav__link" %>
         <% if authenticated? && Current.user.platform_admin? %>
           <%= link_to "Admin", admin_root_path, class: "site-nav__link" %>
@@ -25,13 +27,13 @@
     </div>
 
     <nav class="tag-nav" aria-label="Collection tags">
-      <%= link_to root_path(q: @query.presence), class: class_names("tag-nav__item", "tag-nav__item--active": @active_tag.blank?) do %>
+      <%= link_to root_path(q: @query.presence), class: class_names("tag-nav__item", "tag-nav__item--active": @active_tag.blank?), aria: { current: @active_tag.blank? ? "page" : nil } do %>
         <span>All</span>
         <span class="tag-nav__count"><%= @total_entry_count %></span>
       <% end %>
 
       <% @tags.each do |tag_record| %>
-        <%= link_to root_path(tag: tag_record.slug, q: @query.presence), class: class_names("tag-nav__item", "tag-nav__item--active": @active_tag == tag_record.slug) do %>
+        <%= link_to root_path(tag: tag_record.slug, q: @query.presence), class: class_names("tag-nav__item", "tag-nav__item--active": @active_tag == tag_record.slug), aria: { current: @active_tag == tag_record.slug ? "page" : nil } do %>
           <%= tag_color_dot(tag_record) %>
           <span><%= tag_record.name %></span>
           <span class="tag-nav__count"><%= tag_record.try(:taggings_count).to_i %></span>
@@ -41,7 +43,7 @@
   </header>
 
   <% if @entries.any? %>
-    <section class="entry-grid" aria-label="Collected entries">
+    <section id="collection-entries" class="entry-grid" aria-label="Collected entries" tabindex="-1">
       <% @entries.each do |entry| %>
         <article class="entry-card entry-card--<%= entry.media_kind %>">
           <%= link_to entry_path(entry), class: "entry-card__media", aria: { label: entry.title } do %>
@@ -58,14 +60,16 @@
               <p class="entry-card__excerpt"><%= truncate(strip_tags(render_markdown(entry.notes)), length: 150) %></p>
             <% end %>
 
-            <div class="entry-card__tags" aria-label="Tags">
-              <% entry.tags.each do |tag_record| %>
-                <%= link_to root_path(tag: tag_record.slug), class: "entry-card__tag" do %>
-                  <%= tag_color_dot(tag_record) %>
-                  <span><%= tag_record.name %></span>
+            <% if entry.tags.any? %>
+              <nav class="entry-card__tags" aria-label="Tags for <%= entry.title %>">
+                <% entry.tags.each do |tag_record| %>
+                  <%= link_to root_path(tag: tag_record.slug), class: "entry-card__tag" do %>
+                    <%= tag_color_dot(tag_record) %>
+                    <span><%= tag_record.name %></span>
+                  <% end %>
                 <% end %>
-              <% end %>
-            </div>
+              </nav>
+            <% end %>
           </div>
         </article>
       <% end %>
@@ -79,10 +83,10 @@
       </nav>
     <% end %>
   <% else %>
-    <section class="empty-state empty-state--collection">
+    <section id="collection-entries" class="empty-state empty-state--collection" tabindex="-1">
       <p>No entries found.</p>
       <% if authenticated? && Current.user.platform_admin? %>
-        <%= link_to "Add the first one", new_admin_entry_path, class: "button" %>
+        <%= link_to @total_entry_count.zero? ? "Add the first one" : "Add an entry", new_admin_entry_path, class: "button" %>
       <% end %>
     </section>
   <% end %>

@@ -74,6 +74,7 @@ class PasswordsControllerTest < ActionDispatch::IntegrationTest
 
     follow_redirect!
     assert_notice "Password has been reset"
+    assert_select ".flash[role='status'][aria-live='polite'][aria-atomic='true']"
   end
 
   test "a reset token cannot be reused after the password changes" do

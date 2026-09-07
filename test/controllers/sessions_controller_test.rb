@@ -23,6 +23,9 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to new_session_path
     assert_nil cookies[:session_id]
+
+    follow_redirect!
+    assert_select ".flash[role='alert'][aria-atomic='true']", /Try another email address or password/
   end
 
   test "destroy" do

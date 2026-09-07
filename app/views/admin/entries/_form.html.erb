@@ -1,6 +1,6 @@
 <%= form_with model: [ :admin, entry ], class: "entry-form" do |form| %>
   <% if entry.errors.any? %>
-    <div class="entry-form__errors">
+    <div id="entry-form-errors" class="entry-form__errors" role="alert" tabindex="-1">
       <p><%= pluralize(entry.errors.count, "error") %> kept this entry from being saved.</p>
       <ul>
         <% entry.errors.full_messages.each do |message| %>
@@ -13,36 +13,36 @@
   <div class="entry-form__grid">
     <div class="form-field entry-form__field entry-form__field--wide entry-form__field--url">
       <%= form.label :url, "URL" %>
-      <%= form.url_field :url, required: true, placeholder: "https://...", class: "form-control form-control--single-line" %>
+      <%= form.url_field :url, required: true, placeholder: "https://...", class: "form-control form-control--single-line", aria: { invalid: entry.errors.include?(:url), describedby: entry.errors.include?(:url) ? "entry-form-errors" : nil } %>
     </div>
 
     <div class="form-field entry-form__field entry-form__field--wide entry-form__field--url">
       <%= form.label :image_url, "Accompanying Image URL" %>
-      <%= form.url_field :image_url, placeholder: "https://... Optional image for non-image entries", class: "form-control form-control--single-line" %>
+      <%= form.url_field :image_url, placeholder: "https://... Optional image for non-image entries", class: "form-control form-control--single-line", aria: { invalid: entry.errors.include?(:image_url), describedby: entry.errors.include?(:image_url) ? "entry-form-errors" : nil } %>
       <small>HTTPS raster images only: AVIF, GIF, JPEG, PNG, or WebP.</small>
     </div>
 
     <div class="form-field entry-form__field entry-form__field--wide">
       <%= form.label :title %>
-      <%= form.text_field :title, required: true, class: "form-control form-control--single-line" %>
+      <%= form.text_field :title, required: true, class: "form-control form-control--single-line", aria: { invalid: entry.errors.include?(:title), describedby: entry.errors.include?(:title) ? "entry-form-errors" : nil } %>
     </div>
 
     <% if entry.persisted? %>
       <div class="form-field entry-form__field">
         <%= form.label :source_name %>
-        <%= form.text_field :source_name, value: entry.source_name_overridden? ? entry.source_name : "", placeholder: entry.source_name.presence || "inferred from URL", class: "form-control form-control--single-line" %>
+        <%= form.text_field :source_name, value: entry.source_name_overridden? ? entry.source_name : "", placeholder: entry.source_name.presence || "inferred from URL", class: "form-control form-control--single-line", aria: { invalid: entry.errors.include?(:source_name), describedby: entry.errors.include?(:source_name) ? "entry-form-errors" : nil } %>
         <small>Leave blank to infer from the URL.</small>
       </div>
     <% end %>
 
     <div class="form-field entry-form__field">
       <%= form.label :media_kind %>
-      <%= form.select :media_kind, [ [ "Auto", "" ] ] + Entry::MEDIA_KINDS.map { |kind| [ kind.titleize, kind ] }, { selected: entry.media_kind_overridden? ? entry.media_kind : "" }, class: "form-control form-control--single-line" %>
+      <%= form.select :media_kind, [ [ "Auto", "" ] ] + Entry::MEDIA_KINDS.map { |kind| [ kind.titleize, kind ] }, { selected: entry.media_kind_overridden? ? entry.media_kind : "" }, class: "form-control form-control--single-line", aria: { invalid: entry.errors.include?(:media_kind), describedby: entry.errors.include?(:media_kind) ? "entry-form-errors" : nil } %>
     </div>
 
     <div class="form-field entry-form__field entry-form__field--wide entry-form__field--tags">
       <%= form.label :tag_list, "Tags" %>
-      <%= form.text_field :tag_list, value: entry.tag_list, placeholder: "architecture, theology, type", class: "form-control form-control--single-line" %>
+      <%= form.text_field :tag_list, value: entry.tag_list, placeholder: "architecture, theology, type", class: "form-control form-control--single-line", aria: { invalid: entry.errors.include?(:tag_list), describedby: entry.errors.include?(:tag_list) ? "entry-form-errors" : nil } %>
     </div>
 
     <div class="form-field entry-form__field entry-form__field--wide markdown-editor" data-controller="markdown-editor">
@@ -54,7 +54,7 @@
         <button type="button" data-action="markdown-editor#format" data-markdown-editor-style-param="link" title="Link">Link</button>
         <button type="button" data-action="markdown-editor#format" data-markdown-editor-style-param="list" title="Bulleted list">List</button>
       </div>
-      <%= form.text_area :notes, rows: 10, class: "form-control", data: { markdown_editor_target: "input" } %>
+      <%= form.text_area :notes, rows: 10, class: "form-control", data: { markdown_editor_target: "input" }, aria: { invalid: entry.errors.include?(:notes), describedby: entry.errors.include?(:notes) ? "entry-form-errors" : nil } %>
       <small>Markdown supported.</small>
     </div>
   </div>

@@ -7,11 +7,17 @@ class EntriesControllerTest < ActionDispatch::IntegrationTest
     get root_path
 
     assert_response :success
+    assert_select "html[lang='en']"
+    assert_select "meta[charset='utf-8']"
+    assert_select "body > a.skip-link[href='#collection-entries']", text: "Skip to entries"
+    assert_select "#collection-entries[tabindex='-1']"
     assert_select "h1.archive-header__title a", text: "c0mn"
     assert_select "form.archive-search"
     assert_select ".tag-nav__item"
+    assert_select ".tag-nav__item[aria-current='page']", count: 1
     assert_select ".tag-dot circle[fill^='#']"
     assert_select ".entry-card", 1
+    assert_select "nav.entry-card__tags[aria-label='Tags for A house in Mallorca']"
     assert_select ".entry-card__media img"
     assert_select "a[href='#{admin_root_path}']", count: 0
     assert_select "a[href='#{about_path}']", text: "About"
@@ -38,6 +44,21 @@ class EntriesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, "A house"
     assert_not_includes response.body, "A song"
+    assert_select ".tag-nav__item[aria-current='page']", text: /architecture/
+  end
+
+  test "uses accurate actions for filtered and completely empty collections" do
+    sign_in_as users(:owner)
+    Entry.create!(title: "Existing", url: "https://example.com/existing")
+
+    get root_path(q: "missing")
+    assert_select "#collection-entries.empty-state[tabindex='-1']"
+    assert_select "a", text: "Add an entry"
+    assert_select "a", text: "Add the first one", count: 0
+
+    Entry.delete_all
+    get root_path
+    assert_select "a", text: "Add the first one"
   end
 
   test "searches within a different tag while filtering" do
@@ -121,10 +142,11 @@ class EntriesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "renders entry notes as sanitized Markdown" do
-    entry = Entry.create!(
+    entry = create_entry!(
       title: "Notes",
       url: "https://example.com/notes",
-      notes: "# Context\n\nA **useful** note. <script>alert('no')</script>"
+      notes: "# Context\n\nA **useful** note. <script>alert('no')</script>",
+      tag_list: "reference"
     )
 
     get entry_path(entry)
@@ -133,6 +155,9 @@ class EntriesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".notes h2", text: "Context"
     assert_select ".notes strong", text: "useful"
     assert_select ".notes script", count: 0
+    assert_select ".site-nav__link[aria-current='page']", text: "Collection"
+    assert_select "aside[aria-label='Entry details']"
+    assert_select "nav.entry-detail__tags[aria-label='Entry tags']", text: /reference/
     assert_select "a.entry-detail__url[href='https://example.com/notes'][target='_blank'][rel='noopener']"
   end
 end

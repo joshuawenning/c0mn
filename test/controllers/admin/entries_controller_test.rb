@@ -98,6 +98,8 @@ class Admin::EntriesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :unprocessable_entity
     assert_equal [ "landscape" ], @entry.reload.tags.pluck(:name)
+    assert_select "#entry-form-errors[role='alert'][tabindex='-1']", /Title can't be blank/
+    assert_select "input[name='entry[title]'][aria-invalid='true'][aria-describedby='entry-form-errors']"
   end
 
   test "destroys an entry and retains its tags" do
