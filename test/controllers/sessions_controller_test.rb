@@ -35,7 +35,35 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "returns the owner to a protected admin page after login" do
-    get admin_entries_path
+    get admin_entries_path(filter: "recent")
+    assert_redirected_to new_session_path
+
+    post session_path, params: { email_address: @user.email_address, password: "a secure password" }
+
+    assert_redirected_to admin_entries_url(filter: "recent")
+  end
+
+  test "does not retain the request host in the return path" do
+    get admin_entries_path, headers: { "X-Forwarded-Host" => "attacker.example" }
+    assert_redirected_to new_session_path
+
+    post session_path, params: { email_address: @user.email_address, password: "a secure password" }
+
+    assert_redirected_to admin_entries_url
+  end
+
+  test "does not return to a protected mutation after login" do
+    post admin_entries_path, params: { entry: { title: "Not created", url: "https://example.com/entry" } }
+    assert_redirected_to new_session_path
+
+    post session_path, params: { email_address: @user.email_address, password: "a secure password" }
+
+    assert_redirected_to root_path
+    assert_not Entry.exists?(title: "Not created")
+  end
+
+  test "can return to a protected head request after login" do
+    head admin_entries_path
     assert_redirected_to new_session_path
 
     post session_path, params: { email_address: @user.email_address, password: "a secure password" }
