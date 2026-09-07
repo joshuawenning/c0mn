@@ -81,12 +81,10 @@
           </tr>
           <tr>
             <th scope="row">Status</th>
+            <td>Process liveness</td>
             <td>
-              <span class="about-status"><span class="about-status__dot"></span>Operational</span>
-            </td>
-            <td>
-              <%= link_to "Live health check", rails_health_check_path, class: "about-system__health" %>
-              <time datetime="<%= @status_checked_at.iso8601 %>">Checked <%= @status_checked_at.to_fs(:time) %></time>
+              <%= link_to "View liveness check", rails_health_check_path, class: "about-system__health" %>
+              <span class="about-system__note">External dependencies are not checked.</span>
             </td>
           </tr>
         </tbody>

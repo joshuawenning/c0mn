@@ -1,5 +1,5 @@
 class HealthController < ActionController::Base
-  rescue_from(Exception) { render_down }
+  rescue_from StandardError, with: :render_down
 
   before_action :set_response_headers
 
