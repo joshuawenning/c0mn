@@ -20,7 +20,7 @@ class EntriesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".site-footer__source[href='https://github.com/joshuawenning/c0mn']", text: "View Source"
   end
 
-  test "shows admin navigation only to the signed-in owner" do
+  test "shows admin navigation only to a signed-in administrator" do
     sign_in_as users(:owner)
 
     get root_path

@@ -11,7 +11,7 @@ class Admin::EntriesControllerTest < ActionDispatch::IntegrationTest
     )
   end
 
-  test "renders admin index for the owner" do
+  test "renders admin index for an administrator" do
     link_entry = Entry.create!(title: "Reading list", url: "https://example.org/reading")
 
     get admin_entries_path

@@ -16,7 +16,7 @@ class OwnerTaskTest < ActiveSupport::TestCase
     @task.reenable
   end
 
-  test "creates the initial platform owner" do
+  test "creates a platform administrator" do
     User.destroy_all
     ENV.update(
       "OWNER_EMAIL" => "owner@example.com",
@@ -28,20 +28,22 @@ class OwnerTaskTest < ActiveSupport::TestCase
       capture_io { @task.invoke }
     end
 
-    owner = User.find_by!(email_address: "owner@example.com")
-    assert owner.platform_admin?
-    assert owner.authenticate("a generated password")
+    administrator = User.find_by!(email_address: "owner@example.com")
+    assert administrator.platform_admin?
+    assert administrator.authenticate("a generated password")
   end
 
-  test "refuses to create a second platform owner" do
+  test "creates additional platform administrators" do
     ENV.update(
       "OWNER_EMAIL" => "another@example.com",
       "OWNER_USERNAME" => "another",
       "OWNER_PASSWORD" => "a generated password"
     )
 
-    assert_raises(SystemExit) do
+    assert_difference "User.where(platform_admin: true).count", 1 do
       capture_io { @task.invoke }
     end
+
+    assert User.find_by!(email_address: "another@example.com").platform_admin?
   end
 end

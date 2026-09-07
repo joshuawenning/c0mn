@@ -34,7 +34,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_empty cookies[:session_id]
   end
 
-  test "returns the owner to a protected admin page after login" do
+  test "returns an administrator to a protected admin page after login" do
     get admin_entries_path(filter: "recent")
     assert_redirected_to new_session_path
 

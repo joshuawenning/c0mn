@@ -21,7 +21,7 @@ c0mn turns URLs into a visual collection of inspiration from around the web. Sav
 - Markdown notes
 - Masonry-style collection browsing
 - Search and tag filtering
-- Private owner administration
+- Private administrator access
 
 ## Tech Stack
 
@@ -41,9 +41,9 @@ bin/rails db:prepare
 bin/rails server
 ```
 
-## Owner Setup
+## Administrator Setup
 
-Run the migrations, then create the initial owner once:
+Run the migrations, then create a platform administrator:
 
 ```sh
 OWNER_EMAIL="you@example.com" \
@@ -51,7 +51,7 @@ OWNER_USERNAME="admin" \
 bin/rails owner:bootstrap
 ```
 
-The task securely prompts for a password, which is stored only as a BCrypt digest. For non-interactive automation, provide `OWNER_PASSWORD` through a secret manager. Sign in at `/login`; the admin navigation appears only while the platform owner is signed in.
+The task name and environment variables are retained as the deployment interface. It securely prompts for a password, which is stored only as a BCrypt digest. For non-interactive automation, provide `OWNER_PASSWORD` through a secret manager. Run the task again with a unique email and username to create another administrator. Sign in at `/login`; the admin navigation appears only while a platform administrator is signed in.
 
 ## Links
 
