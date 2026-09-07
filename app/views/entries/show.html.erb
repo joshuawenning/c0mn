@@ -32,7 +32,7 @@
       <h1 class="entry-detail__title"><%= @entry.title %></h1>
 
       <div class="entry-detail__media">
-        <%= render "preview", entry: @entry, lazy: false, linked_fallback: true %>
+        <%= render "preview", entry: @entry, lazy: false, linked_fallback: true, allow_embed: true %>
       </div>
 
       <% if @entry.notes.present? %>

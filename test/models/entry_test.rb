@@ -6,18 +6,28 @@ class EntryTest < ActiveSupport::TestCase
     assert_not_includes Entry.column_names, "description"
   end
 
-  test "requires an absolute http url" do
+  test "requires a regular http url" do
     entry = Entry.new(title: "Local file", url: "/notes/image.jpg")
 
     assert_not entry.valid?
-    assert_includes entry.errors[:url], "must be an absolute http or https URL"
+    assert_includes entry.errors[:url], "must be a regular http or https link"
   end
 
   test "rejects executable URL schemes" do
     entry = Entry.new(title: "Unsafe", url: "javascript:alert('no')")
 
     assert_not entry.valid?
-    assert_includes entry.errors[:url], "must be an absolute http or https URL"
+    assert_includes entry.errors[:url], "must be a regular http or https link"
+  end
+
+  test "rejects script resources and urls containing credentials" do
+    script = Entry.new(title: "Script", url: "https://example.com/application.js")
+    credentialed = Entry.new(title: "Private", url: "https://user:secret@example.com/private")
+
+    assert_not script.valid?
+    assert_includes script.errors[:url], "must be a regular http or https link"
+    assert_not credentialed.valid?
+    assert_includes credentialed.errors[:url], "must be a regular http or https link"
   end
 
   test "assigns comma separated tags" do
@@ -55,7 +65,24 @@ class EntryTest < ActiveSupport::TestCase
     entry = Entry.new(title: "Article", url: "https://example.com/post", image_url: "image.jpg")
 
     assert_not entry.valid?
-    assert_includes entry.errors[:image_url], "must be an absolute https URL"
+    assert_includes entry.errors[:image_url], "must be an HTTPS URL ending in avif, gif, jpg, jpeg, png, or webp"
+  end
+
+  test "requires image urls to use https raster image extensions" do
+    insecure = Entry.new(title: "Image", url: "http://example.com/photo.jpg")
+    svg = Entry.new(title: "Image", url: "https://example.com/photo.svg", media_kind: "image")
+    script = Entry.new(
+      title: "Article",
+      url: "https://example.com/post",
+      image_url: "https://example.com/preview.js"
+    )
+
+    assert_not insecure.valid?
+    assert_includes insecure.errors[:url], "must be an HTTPS image ending in avif, gif, jpg, jpeg, png, or webp"
+    assert_not svg.valid?
+    assert_includes svg.errors[:url], "must be an HTTPS image ending in avif, gif, jpg, jpeg, png, or webp"
+    assert_not script.valid?
+    assert script.errors[:image_url].any?
   end
 
   test "recomputes automatic metadata when the url changes" do

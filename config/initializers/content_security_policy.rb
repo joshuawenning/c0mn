@@ -7,7 +7,10 @@
 Rails.application.configure do
   config.content_security_policy do |policy|
     policy.default_src :self
+    policy.base_uri    :self
     policy.font_src    :self, :data
+    policy.form_action :self
+    policy.frame_ancestors :none
     policy.img_src     :self, :https, :data
     policy.frame_src   :self, "https://www.youtube.com"
     policy.object_src  :none

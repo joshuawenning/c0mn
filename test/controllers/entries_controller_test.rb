@@ -52,7 +52,46 @@ class EntriesControllerTest < ActionDispatch::IntegrationTest
   test "includes a content security policy" do
     get root_path
 
-    assert_includes response.headers["Content-Security-Policy"], "frame-src 'self' https://www.youtube.com"
+    policy = response.headers["Content-Security-Policy"]
+    assert_includes policy, "base-uri 'self'"
+    assert_includes policy, "form-action 'self'"
+    assert_includes policy, "frame-ancestors 'none'"
+    assert_includes policy, "frame-src 'self' https://www.youtube.com"
+    assert_includes policy, "object-src 'none'"
+  end
+
+  test "renders remote images without sending a referrer" do
+    Entry.create!(title: "Image", url: "https://example.com/image.jpg")
+
+    get root_path
+
+    assert_response :success
+    assert_select "img[src='https://example.com/image.jpg'][referrerpolicy='no-referrer']"
+  end
+
+  test "only embeds videos on the entry detail page" do
+    entry = Entry.create!(title: "Video", url: "https://youtube.com/watch?v=dQw4w9WgXcQ")
+
+    get root_path
+    assert_response :success
+    assert_select "a iframe", count: 0
+    assert_select "iframe", count: 0
+
+    get entry_path(entry)
+    assert_response :success
+    assert_select "iframe[src='https://www.youtube.com/embed/dQw4w9WgXcQ'][title='Video']", count: 1
+  end
+
+  test "does not link unsafe values from legacy records" do
+    entry = Entry.create!(title: "Legacy", url: "https://example.com/legacy")
+    entry.update_column(:url, "javascript:alert('no')")
+
+    get entry_path(entry)
+
+    assert_response :success
+    assert_select ".entry-detail__media a", count: 0
+    assert_select ".entry-detail__url[href^='javascript:']", count: 0
+    assert_not_includes response.body, "href=\"javascript:"
   end
 
   test "links and serves individually versioned stylesheets" do

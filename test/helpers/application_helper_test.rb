@@ -17,6 +17,13 @@ class ApplicationHelperTest < ActionView::TestCase
     assert_no_match(/<a|javascript:/i, html)
   end
 
+  test "renders escaped text instead of https script resources" do
+    html = external_link_to("Source", "https://example.com/application.js")
+
+    assert_equal "Source", html
+    assert_no_match(/<a/i, html)
+  end
+
   test "can require external links to use https" do
     html = external_link_to("Image", "http://example.com/image.jpg", https_only: true)
 

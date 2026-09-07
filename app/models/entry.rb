@@ -7,8 +7,8 @@ class Entry < ApplicationRecord
   validates :title, :url, :media_kind, :collected_at, presence: true
   validates :url, uniqueness: true
   validates :media_kind, inclusion: { in: MEDIA_KINDS }
-  validate :url_must_be_absolute_http_url
-  validate :embeddable_urls_must_use_https
+  validate :url_must_be_regular_http_url
+  validate :image_urls_must_be_safe
   validate :pending_tags_must_be_valid
 
   before_validation :set_collected_at, on: :create
@@ -83,7 +83,7 @@ class Entry < ApplicationRecord
     candidate = media_kind == "image" ? url : image_url
     parsed_candidate = EntryUrl.new(candidate)
 
-    candidate if parsed_candidate.https?
+    candidate if parsed_candidate.image?
   end
 
   def youtube_embed_url
@@ -118,19 +118,19 @@ class Entry < ApplicationRecord
     EntryUrl.new(image_url)
   end
 
-  def url_must_be_absolute_http_url
+  def url_must_be_regular_http_url
     return if entry_url.valid?
 
-    errors.add(:url, "must be an absolute http or https URL")
+    errors.add(:url, "must be a regular http or https link")
   end
 
-  def embeddable_urls_must_use_https
-    if image_url.present? && !image_entry_url.https?
-      errors.add(:image_url, "must be an absolute https URL")
+  def image_urls_must_be_safe
+    if image_url.present? && !image_entry_url.image?
+      errors.add(:image_url, "must be an HTTPS URL ending in avif, gif, jpg, jpeg, png, or webp")
     end
 
-    if media_kind == "image" && entry_url.valid? && !entry_url.https?
-      errors.add(:url, "must use https for image entries")
+    if media_kind == "image" && entry_url.valid? && !entry_url.image?
+      errors.add(:url, "must be an HTTPS image ending in avif, gif, jpg, jpeg, png, or webp")
     end
   end
 

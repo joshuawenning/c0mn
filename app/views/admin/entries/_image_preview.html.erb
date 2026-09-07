@@ -1,6 +1,6 @@
 <% if (image_url = entry.embeddable_image_url) %>
   <div class="admin-entry-preview admin-preview">
-    <%= image_tag image_url, alt: "Preview of #{entry.title}", loading: lazy ? "lazy" : nil %>
+    <%= image_tag image_url, alt: "Preview of #{entry.title}", loading: lazy ? "lazy" : nil, referrerpolicy: "no-referrer" %>
   </div>
 <% elsif local_assigns.fetch(:placeholder, false) %>
   <div class="admin-entry-preview admin-preview admin-preview--placeholder" aria-hidden="true">

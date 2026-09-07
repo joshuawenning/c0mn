@@ -1,6 +1,7 @@
 class EntryUrl
   IMAGE_EXTENSION = /\.(avif|gif|jpe?g|png|webp)\z/i
   AUDIO_EXTENSION = /\.(mp3|wav|m4a|ogg)\z/i
+  ACTIVE_CONTENT_EXTENSION = /\.(cjs|js|mjs|wasm)\z/i
   YOUTUBE_PATH_PREFIXES = %w[embed live shorts].freeze
   YOUTUBE_ID = /\A[A-Za-z0-9_-]{6,}\z/
 
@@ -14,11 +15,15 @@ class EntryUrl
   end
 
   def valid?
-    uri.present?
+    uri.present? && uri.userinfo.blank? && !active_content_path?
   end
 
   def https?
-    uri.is_a?(URI::HTTPS)
+    valid? && uri.is_a?(URI::HTTPS)
+  end
+
+  def image?
+    https? && decoded_path.match?(IMAGE_EXTENSION)
   end
 
   def source_name
@@ -26,7 +31,7 @@ class EntryUrl
   end
 
   def media_kind
-    if uri&.path.to_s.match?(IMAGE_EXTENSION)
+    if decoded_path.match?(IMAGE_EXTENSION)
       "image"
     elsif youtube? || domain?("vimeo.com")
       "video"
@@ -38,7 +43,7 @@ class EntryUrl
   end
 
   def youtube_embed_url
-    return unless youtube?
+    return unless valid? && youtube?
 
     id = youtube_id
     "https://www.youtube.com/embed/#{id}" if id&.match?(YOUTUBE_ID)
@@ -48,6 +53,14 @@ class EntryUrl
 
   def host
     uri&.host&.downcase
+  end
+
+  def decoded_path
+    URI::DEFAULT_PARSER.unescape(uri&.path.to_s)
+  end
+
+  def active_content_path?
+    decoded_path.match?(ACTIVE_CONTENT_EXTENSION)
   end
 
   def domain?(domain)

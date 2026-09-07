@@ -45,7 +45,7 @@
       <% @entries.each do |entry| %>
         <article class="entry-card entry-card--<%= entry.media_kind %>">
           <%= link_to entry_path(entry), class: "entry-card__media", aria: { label: entry.title } do %>
-            <%= render "preview", entry: entry, lazy: true, linked_fallback: false %>
+            <%= render "preview", entry: entry, lazy: true, linked_fallback: false, allow_embed: false %>
           <% end %>
 
           <div class="entry-card__body">
