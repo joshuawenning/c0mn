@@ -2,7 +2,7 @@ require "test_helper"
 
 class EntriesControllerTest < ActionDispatch::IntegrationTest
   test "renders the public collection" do
-    Entry.create!(title: "A house in Mallorca", url: "https://example.com/house.jpg", tag_list: "architecture")
+    create_entry!(title: "A house in Mallorca", url: "https://example.com/house.jpg", tag_list: "architecture")
 
     get root_path
 
@@ -30,8 +30,8 @@ class EntriesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "filters by tag" do
-    Entry.create!(title: "A house", url: "https://example.com/house", tag_list: "architecture")
-    Entry.create!(title: "A song", url: "https://example.com/song", tag_list: "music")
+    create_entry!(title: "A house", url: "https://example.com/house", tag_list: "architecture")
+    create_entry!(title: "A song", url: "https://example.com/song", tag_list: "music")
 
     get root_path(tag: "architecture")
 
@@ -41,7 +41,7 @@ class EntriesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "searches within a different tag while filtering" do
-    Entry.create!(title: "A house", url: "https://example.com/house", tag_list: "architecture, music")
+    create_entry!(title: "A house", url: "https://example.com/house", tag_list: "architecture, music")
 
     get root_path(tag: "architecture", q: "music")
 

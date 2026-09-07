@@ -31,7 +31,7 @@ class EntryTest < ActiveSupport::TestCase
   end
 
   test "assigns comma separated tags" do
-    entry = Entry.create!(title: "Garden", url: "https://example.com/garden", tag_list: "Landscape, ecology, landscape")
+    entry = create_entry!(title: "Garden", url: "https://example.com/garden", tag_list: "Landscape, ecology, landscape")
 
     assert_equal [ "ecology", "landscape" ], entry.tags.order(:name).pluck(:name)
   end
@@ -109,28 +109,40 @@ class EntryTest < ActiveSupport::TestCase
   end
 
   test "preserves tags when another attribute is invalid" do
-    entry = Entry.create!(title: "Garden", url: "https://example.com/garden", tag_list: "landscape")
+    entry = create_entry!(title: "Garden", url: "https://example.com/garden", tag_list: "landscape")
 
-    assert_not entry.update(title: "", tag_list: "ecology")
+    entry.assign_attributes(title: "", tag_list: "ecology")
+    assert_not Entries::Save.new(entry).call
 
     assert_equal [ "landscape" ], entry.reload.tags.pluck(:name)
   end
 
-  test "deletes tags orphaned by replacement and entry deletion" do
-    entry = Entry.create!(title: "Garden", url: "https://example.com/garden", tag_list: "landscape")
+  test "retains unused tags after replacement and entry deletion" do
+    entry = create_entry!(title: "Garden", url: "https://example.com/garden", tag_list: "landscape")
 
-    entry.update!(tag_list: "ecology")
+    entry.tag_list = "ecology"
+    assert Entries::Save.new(entry).call
 
-    assert_not Tag.exists?(name: "landscape")
+    assert Tag.exists?(name: "landscape")
     assert Tag.exists?(name: "ecology")
 
     entry.destroy!
 
-    assert_not Tag.exists?(name: "ecology")
+    assert Tag.exists?(name: "ecology")
+  end
+
+  test "retains a shared tag when one entry changes its tags" do
+    first = create_entry!(title: "First", url: "https://example.com/first", tag_list: "shared")
+    second = create_entry!(title: "Second", url: "https://example.com/second", tag_list: "shared")
+
+    first.tag_list = "replacement"
+    assert Entries::Save.new(first).call
+
+    assert_equal [ "shared" ], second.reload.tags.pluck(:name)
   end
 
   test "combines tag filters with searches matching another tag" do
-    entry = Entry.create!(title: "House", url: "https://example.com/house", tag_list: "architecture, music")
+    entry = create_entry!(title: "House", url: "https://example.com/house", tag_list: "architecture, music")
 
     results = Entry.tagged_with("architecture").search("music")
 
@@ -148,8 +160,19 @@ class EntryTest < ActiveSupport::TestCase
     Tag.create!(name: "c++")
     entry = Entry.new(title: "Languages", url: "https://example.com/languages", tag_list: "c#")
 
-    assert_not entry.save
+    assert_no_difference "Entry.count" do
+      assert_not Entries::Save.new(entry).call
+    end
     assert entry.errors[:tag_list].any?
+  end
+
+  test "reports duplicate urls on the url field" do
+    create_entry!(title: "Original", url: "https://example.com/duplicate")
+    duplicate = Entry.new(title: "Duplicate", url: "https://example.com/duplicate", tag_list: "example")
+
+    assert_not Entries::Save.new(duplicate).call
+    assert_includes duplicate.errors[:url], "has already been taken"
+    assert_empty duplicate.errors[:tag_list]
   end
 
   test "only embeds exact youtube domains" do

@@ -9,14 +9,10 @@ class Entry < ApplicationRecord
   validates :media_kind, inclusion: { in: MEDIA_KINDS }
   validate :url_must_be_regular_http_url
   validate :image_urls_must_be_safe
-  validate :pending_tags_must_be_valid
 
   before_validation :set_collected_at, on: :create
   before_validation :infer_source_name
   before_validation :infer_media_kind
-  after_save :synchronize_pending_tags
-  before_destroy :remember_tag_ids, prepend: true
-  after_destroy :destroy_orphaned_tags
 
   scope :recent, -> { order(collected_at: :desc, created_at: :desc) }
 
@@ -50,13 +46,13 @@ class Entry < ApplicationRecord
   end
 
   def tag_list
-    return @pending_tag_names.join(", ") if defined?(@pending_tag_names)
+    return @tag_list if defined?(@tag_list)
 
     tags.map(&:name).join(", ")
   end
 
   def tag_list=(names)
-    @pending_tag_names = names.to_s.split(",").filter_map { |name| Tag.normalize_name(name) }.uniq
+    @tag_list = names.to_s
   end
 
   def source_name=(value)
@@ -67,16 +63,6 @@ class Entry < ApplicationRecord
   def media_kind=(value)
     self.media_kind_overridden = value.present? if has_attribute?(:media_kind_overridden)
     super
-  end
-
-  def save_with_tags
-    save
-  rescue ActiveRecord::RecordInvalid => error
-    errors.add(:tag_list, error.record.errors.full_messages.to_sentence) unless error.record == self
-    false
-  rescue ActiveRecord::RecordNotUnique
-    errors.add(:tag_list, "contains a tag that was created concurrently; please try again")
-    false
   end
 
   def embeddable_image_url
@@ -132,42 +118,5 @@ class Entry < ApplicationRecord
     if media_kind == "image" && entry_url.valid? && !entry_url.image?
       errors.add(:url, "must be an HTTPS image ending in avif, gif, jpg, jpeg, png, or webp")
     end
-  end
-
-  def resolve_pending_tags
-    @pending_tag_names.filter_map do |name|
-      tag = Tag.find_or_initialize_by(name: name)
-
-      if tag.valid?
-        tag
-      else
-        errors.add(:tag_list, "#{name}: #{tag.errors.full_messages.to_sentence}")
-        nil
-      end
-    end
-  end
-
-  def pending_tags_must_be_valid
-    @resolved_tags = resolve_pending_tags if defined?(@pending_tag_names)
-  end
-
-  def synchronize_pending_tags
-    synchronize_tags(@resolved_tags) if defined?(@pending_tag_names)
-  end
-
-  def synchronize_tags(resolved_tags)
-    previous_tag_ids = tag_ids
-
-    self.tags = resolved_tags
-    remove_instance_variable(:@pending_tag_names)
-    Tag.where(id: previous_tag_ids).where.missing(:taggings).destroy_all
-  end
-
-  def remember_tag_ids
-    @tag_ids_to_clean_up = tag_ids
-  end
-
-  def destroy_orphaned_tags
-    Tag.where(id: @tag_ids_to_clean_up).where.missing(:taggings).destroy_all
   end
 end

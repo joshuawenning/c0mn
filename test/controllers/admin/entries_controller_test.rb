@@ -3,7 +3,7 @@ require "test_helper"
 class Admin::EntriesControllerTest < ActionDispatch::IntegrationTest
   setup do
     sign_in_as users(:owner)
-    @entry = Entry.create!(
+    @entry = create_entry!(
       title: "Garden",
       url: "https://example.com/garden",
       image_url: "https://cdn.example.com/garden.jpg",
@@ -100,9 +100,11 @@ class Admin::EntriesControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ "landscape" ], @entry.reload.tags.pluck(:name)
   end
 
-  test "destroys an entry and its orphaned tags" do
-    assert_difference [ "Entry.count", "Tag.count" ], -1 do
-      delete admin_entry_path(@entry)
+  test "destroys an entry and retains its tags" do
+    assert_difference "Entry.count", -1 do
+      assert_no_difference "Tag.count" do
+        delete admin_entry_path(@entry)
+      end
     end
 
     assert_redirected_to admin_entries_path

@@ -12,5 +12,11 @@ module ActiveSupport
     fixtures :all
 
     # Add more helper methods to be used by all tests here...
+    def create_entry!(**attributes)
+      entry = Entry.new(attributes)
+      raise ActiveRecord::RecordInvalid.new(entry) unless Entries::Save.new(entry).call
+
+      entry
+    end
   end
 end
