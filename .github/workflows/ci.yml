@@ -19,11 +19,11 @@ jobs:
           bundler-cache: true
 
       - name: Scan for common Rails security vulnerabilities using static analysis
-        run: bin/brakeman --no-pager
-      
+        run: bin/brakeman --quiet --no-pager --exit-on-warn --exit-on-error
+
       - name: Scan for known security vulnerabilities in gems used
         run: bin/bundler-audit
-      
+
   scan_js:
     runs-on: ubuntu-latest
 
@@ -68,12 +68,6 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    # services:
-    #  redis:
-    #    image: valkey/valkey:8
-    #    ports:
-    #      - 6379:6379
-    #    options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
       - name: Install packages
         run: sudo apt-get update && sudo apt-get install --no-install-recommends -y libvips
@@ -86,9 +80,68 @@ jobs:
         with:
           bundler-cache: true
 
+      - name: Prepare test database
+        env:
+          RAILS_ENV: test
+        run: bin/rails db:test:prepare
+
       - name: Run tests
         env:
           RAILS_ENV: test
-          # RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
-          # REDIS_URL: redis://localhost:6379/0
-        run: bin/rails db:test:prepare test
+        run: bin/rails test
+
+      - name: Verify seeds in a clean test database
+        env:
+          RAILS_ENV: test
+        run: bin/rails db:seed:replant
+
+      - name: Verify Zeitwerk eager loading
+        run: bin/rails zeitwerk:check
+
+      - name: Precompile production assets
+        env:
+          RAILS_ENV: production
+          SECRET_KEY_BASE_DUMMY: 1
+        run: bin/rails assets:precompile
+
+  system:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install packages
+        run: sudo apt-get update && sudo apt-get install --no-install-recommends -y libvips
+
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Prepare test database
+        env:
+          RAILS_ENV: test
+        run: bin/rails db:test:prepare
+
+      - name: Run browser smoke tests
+        env:
+          RAILS_ENV: test
+        run: bin/rails test:system
+
+  docker:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build the production image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          tags: c0mn:ci

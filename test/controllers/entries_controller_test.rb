@@ -142,8 +142,14 @@ class EntriesControllerTest < ActionDispatch::IntegrationTest
     get root_path
 
     assert_response :success
-    assert_select "link[rel='stylesheet']", 21
-    assert_select "link[href^='/assets/base-'][href$='.css']"
+
+    %w[
+      variables base shell form-control site-header archive-header archive-search
+      tag-nav entry-grid entry-card entry-detail markdown button pagination
+      entry-form admin authentication not-found site-footer about states
+    ].each do |sheet|
+      assert_select "link[href^='/assets/#{sheet}-'][href$='.css']"
+    end
     assert_select "link[href*='application.css']", count: 0
     assert_select "link[href*='?v=']", count: 0
     assert_select "link[data-turbo-track]", count: 0
