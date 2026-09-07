@@ -25,4 +25,12 @@
       </article>
     <% end %>
   </section>
+
+  <% if @total_pages > 1 %>
+    <nav class="pagination" aria-label="Entry pages">
+      <%= link_to "Previous", admin_entries_path(page: @page - 1), class: "button" if @page > 1 %>
+      <span class="pagination__status">Page <%= @page %> of <%= @total_pages %></span>
+      <%= link_to "Next", admin_entries_path(page: @page + 1), class: "button" if @page < @total_pages %>
+    </nav>
+  <% end %>
 </main>

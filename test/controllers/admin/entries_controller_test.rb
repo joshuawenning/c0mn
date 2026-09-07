@@ -27,6 +27,20 @@ class Admin::EntriesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "paginates and clamps the admin index" do
+    Admin::EntriesController::PAGE_SIZE.times do |index|
+      Entry.create!(title: "Paginated #{index}", url: "https://example.org/paginated-#{index}")
+    end
+
+    get admin_entries_path(page: 10_000)
+
+    assert_response :success
+    assert_select ".admin-row", count: 1
+    assert_select ".pagination__status", text: "Page 2 of 2"
+    assert_select ".pagination a", text: "Next", count: 0
+    assert_select ".pagination a[href='#{admin_entries_path(page: 1)}']", text: "Previous"
+  end
+
   test "shows the image preview on admin detail and edit pages" do
     get admin_entry_path(@entry)
 

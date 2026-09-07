@@ -2,9 +2,10 @@ class EntriesController < ApplicationController
   allow_unauthenticated_access
 
   PAGE_SIZE = 48
+  MAX_QUERY_LENGTH = 200
 
   def index
-    @query = params[:q].to_s.strip
+    @query = params[:q].to_s.strip.slice(0, MAX_QUERY_LENGTH)
     @active_tag = params[:tag].to_s.strip
     @page = [ params[:page].to_i, 1 ].max
     @tags = Tag.popular

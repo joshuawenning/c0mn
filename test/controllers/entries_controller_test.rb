@@ -70,6 +70,29 @@ class EntriesControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "A house"
   end
 
+  test "limits search input before querying" do
+    query = "x" * (EntriesController::MAX_QUERY_LENGTH + 50)
+
+    get root_path(q: query)
+
+    assert_response :success
+    assert_select "input[name='q'][maxlength='#{EntriesController::MAX_QUERY_LENGTH}'][value='#{query.first(EntriesController::MAX_QUERY_LENGTH)}']"
+  end
+
+  test "clamps collection pages to the available range" do
+    (EntriesController::PAGE_SIZE + 1).times do |index|
+      Entry.create!(title: "Entry #{index}", url: "https://example.com/page-#{index}")
+    end
+
+    get root_path(page: 10_000)
+
+    assert_response :success
+    assert_select ".entry-card", count: 1
+    assert_select ".pagination__status", text: "Page 2 of 2"
+    assert_select ".pagination a", text: "Next", count: 0
+    assert_select ".pagination a", text: "Previous", count: 1
+  end
+
   test "includes a content security policy" do
     get root_path
 

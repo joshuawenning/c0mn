@@ -13,7 +13,7 @@
         <%= hidden_field_tag :tag, @active_tag if @active_tag.present? %>
         <%= form.label :q, "Search", class: "archive-search__label" %>
         <div class="archive-search__control">
-          <%= form.search_field :q, value: @query, placeholder: "Title, note, source, tag...", autocomplete: "off", class: "archive-search__input" %>
+          <%= form.search_field :q, value: @query, placeholder: "Title, note, source, tag...", autocomplete: "off", maxlength: EntriesController::MAX_QUERY_LENGTH, class: "archive-search__input" %>
           <%= form.submit "Go", class: "archive-search__submit" %>
         </div>
       <% end %>

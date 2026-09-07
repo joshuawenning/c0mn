@@ -1,9 +1,15 @@
 module Admin
   class EntriesController < BaseController
+    PAGE_SIZE = 50
+
     before_action :set_entry, only: %i[show edit update destroy]
 
     def index
-      @entries = Entry.recent
+      @page = [ params[:page].to_i, 1 ].max
+      @entry_count = Entry.count
+      @total_pages = (@entry_count.to_f / PAGE_SIZE).ceil
+      @page = [ @page, [ @total_pages, 1 ].max ].min
+      @entries = Entry.recent.offset((@page - 1) * PAGE_SIZE).limit(PAGE_SIZE)
     end
 
     def show
