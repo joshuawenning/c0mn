@@ -59,6 +59,26 @@ class ApplicationHelperTest < ActionView::TestCase
     assert_no_match(/<h1[ >]/i, html)
   end
 
+  test "builds a plain text Markdown excerpt without raw HTML or link destinations" do
+    excerpt = markdown_excerpt(<<~MARKDOWN)
+      # Heading
+
+      A **useful** note with a [link](https://example.com).
+
+      <script>alert('no')</script>
+
+      - One
+      - Two
+    MARKDOWN
+
+    assert_equal "Heading A useful note with a link. One Two", excerpt
+    assert_no_match(/<|https:|alert/, excerpt)
+  end
+
+  test "truncates Markdown excerpts" do
+    assert_equal "A long...", markdown_excerpt("A long sentence", length: 9)
+  end
+
   test "rejects unsafe Markdown links" do
     html = render_markdown("[unsafe](javascript:alert('no'))")
 

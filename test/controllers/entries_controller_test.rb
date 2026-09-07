@@ -133,6 +133,12 @@ class EntriesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.media_type, "text/css"
     assert_includes response.body, "@font-face"
+    font_url = response.body.match(/url\(["']?([^"')]+\.woff2)/)[1]
+
+    get URI.join("http://www.example.com#{base_stylesheet}", font_url).request_uri
+
+    assert_response :success
+    assert_equal "font/woff2", response.media_type
 
     get variables_stylesheet
 

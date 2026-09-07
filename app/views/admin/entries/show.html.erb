@@ -4,10 +4,7 @@
 <main class="shell shell--admin">
   <%= render "admin/shared/header" %>
 
-  <section class="admin-heading">
-    <h1><%= @entry.title %></h1>
-    <%= link_to "Edit", edit_admin_entry_path(@entry), class: "button button--primary" %>
-  </section>
+  <%= render "admin/shared/heading", title: @entry.title, action: link_to("Edit", edit_admin_entry_path(@entry), class: "button button--primary") %>
 
   <%= render "image_preview", entry: @entry, lazy: false %>
 

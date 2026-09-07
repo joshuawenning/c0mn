@@ -57,7 +57,7 @@
             </div>
             <h2 class="entry-card__title"><%= link_to entry.title, entry_path(entry) %></h2>
             <% if entry.notes.present? %>
-              <p class="entry-card__excerpt"><%= truncate(strip_tags(render_markdown(entry.notes)), length: 150) %></p>
+              <p class="entry-card__excerpt"><%= markdown_excerpt(entry.notes) %></p>
             <% end %>
 
             <% if entry.tags.any? %>

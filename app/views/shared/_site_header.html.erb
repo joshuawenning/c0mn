@@ -1,0 +1,12 @@
+<header class="site-header">
+  <%= link_to "c0mn", root_path, class: "site-header__wordmark" %>
+  <% if navigation %>
+    <nav class="site-nav" aria-label="Primary">
+      <%= link_to "Collection", root_path, class: class_names("site-nav__link", "site-nav__link--active": active == :collection), aria: { current: active == :collection ? "page" : nil } %>
+      <%= link_to "About", about_path, class: class_names("site-nav__link", "site-nav__link--active": active == :about), aria: { current: active == :about ? "page" : nil } %>
+      <% if authenticated? && Current.user.platform_admin? %>
+        <%= link_to "Admin", admin_root_path, class: "site-nav__link" %>
+      <% end %>
+    </nav>
+  <% end %>
+</header>

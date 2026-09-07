@@ -4,10 +4,7 @@
 <main class="shell shell--admin">
   <%= render "admin/shared/header" %>
 
-  <section class="admin-heading">
-    <h1>Collection entries</h1>
-    <%= link_to "New entry", new_admin_entry_path, class: "button button--primary" %>
-  </section>
+  <%= render "admin/shared/heading", title: "Collection entries", action: link_to("New entry", new_admin_entry_path, class: "button button--primary") %>
 
   <section class="admin-list">
     <% @entries.each do |entry| %>

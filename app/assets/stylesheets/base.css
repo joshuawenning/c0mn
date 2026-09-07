@@ -12,7 +12,7 @@
     font-family: "Ioskeley Mono";
     font-style: normal;
     font-weight: 400;
-    src: url("/IoskeleyMono-Regular.woff2") format("woff2");
+    src: url("IoskeleyMono-Regular.woff2") format("woff2");
   }
 
   html {

@@ -2,16 +2,7 @@
 <% content_for :body_class, "about-page" %>
 
 <main class="shell shell--about">
-  <header class="site-header">
-    <%= link_to "c0mn", root_path, class: "site-header__wordmark" %>
-    <nav class="site-nav" aria-label="Primary">
-      <%= link_to "Collection", root_path, class: "site-nav__link" %>
-      <%= link_to "About", about_path, class: "site-nav__link site-nav__link--active", aria: { current: "page" } %>
-      <% if authenticated? && Current.user.platform_admin? %>
-        <%= link_to "Admin", admin_root_path, class: "site-nav__link" %>
-      <% end %>
-    </nav>
-  </header>
+  <%= render "shared/site_header", active: :about, navigation: true %>
 
   <section class="about-hero">
     <p class="about-hero__eyebrow">A commonplace for the web</p>

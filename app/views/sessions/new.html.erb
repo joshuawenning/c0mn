@@ -2,9 +2,7 @@
 <% content_for :body_class, "authentication-page" %>
 
 <main class="shell shell--authentication">
-  <header class="site-header">
-    <%= link_to "c0mn", root_path, class: "site-header__wordmark" %>
-  </header>
+  <%= render "shared/site_header", active: nil, navigation: false %>
 
   <section class="authentication-panel">
     <p class="authentication-panel__eyebrow">Administrator access</p>

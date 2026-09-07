@@ -25,7 +25,10 @@ export default class extends Controller {
       selectionStart = start + 2
       selectionEnd = start + replacement.length
     } else {
-      const [before, after, placeholder] = formats[style]
+      const format = formats[style]
+      if (!format) return
+
+      const [before, after, placeholder] = format
       const content = selected || placeholder
       replacement = `${before}${content}${after}`
       selectionStart = start + before.length

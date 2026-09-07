@@ -2,16 +2,7 @@
 <% content_for :body_class, "entry-page" %>
 
 <main class="shell shell--detail">
-  <header class="site-header">
-    <%= link_to "c0mn", root_path, class: "site-header__wordmark" %>
-    <nav class="site-nav" aria-label="Primary">
-      <%= link_to "Collection", root_path, class: "site-nav__link site-nav__link--active", aria: { current: "page" } %>
-      <%= link_to "About", about_path, class: "site-nav__link" %>
-      <% if authenticated? && Current.user.platform_admin? %>
-        <%= link_to "Admin", admin_root_path, class: "site-nav__link" %>
-      <% end %>
-    </nav>
-  </header>
+  <%= render "shared/site_header", active: :collection, navigation: true %>
 
   <article class="entry-detail">
     <aside class="entry-detail__meta" aria-label="Entry details">

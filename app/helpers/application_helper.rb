@@ -3,6 +3,8 @@ module ApplicationHelper
   EXTERNAL_LINK_ATTRIBUTES = %w[class href rel target].freeze
   MARKDOWN_TAGS = %w[p br strong em a ul ol li blockquote code pre h2 h3 h4 h5 h6 hr].freeze
   MARKDOWN_ATTRIBUTES = %w[href title].freeze
+  MARKDOWN_TEXT_NODES = %i[text code code_block].freeze
+  MARKDOWN_BLOCK_NODES = %i[paragraph heading item].freeze
 
   def external_link_to(label, url, class_name: nil, https_only: false)
     parsed_url = EntryUrl.new(url)
@@ -29,6 +31,19 @@ module ApplicationHelper
     end
 
     sanitize html, tags: MARKDOWN_TAGS, attributes: MARKDOWN_ATTRIBUTES
+  end
+
+  def markdown_excerpt(text, length: 150)
+    return if text.blank?
+
+    parts = []
+    Commonmarker.parse(text).walk do |node|
+      parts << " " if MARKDOWN_BLOCK_NODES.include?(node.type)
+      parts << node.string_content if MARKDOWN_TEXT_NODES.include?(node.type)
+      parts << " " if %i[softbreak linebreak].include?(node.type)
+    end
+
+    truncate(parts.join.squish, length: length)
   end
 
   def tag_color_dot(tag_record)
