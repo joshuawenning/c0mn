@@ -1,7 +1,5 @@
 # c0mn.com
-> Encounter something meaningful. Then, save it.
-
-c0mn is a *commonplace* Rails app for collecting and sharing ideas, without requiring content creation.
+> Commonplace Rails app for collecting and sharing ideas
 
 c0mn turns URLs into a visual collection of inspiration from around the web. Save a link, add tags or notes, and c0mn organizes it into a browsable archive while preserving the original source. Instead of creating new content, you collect and connect what already matters to you.
 
