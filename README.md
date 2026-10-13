@@ -3,7 +3,7 @@
 
 c0mn turns URLs into a visual collection of inspiration from around the web. Save a link, add tags or notes, and c0mn organizes it into a browsable archive while preserving the original source. Instead of creating new content, you collect and connect what already matters to you.
 
-**The URL is the raw material.**
+![c0mn collection screenshot](screenshot.png)
 
 ## How It Works
 
@@ -39,7 +39,7 @@ bin/rails db:prepare
 bin/rails server
 ```
 
-## Administrator
+## Admin
 
 ```sh
 OWNER_EMAIL="you@example.com" \
