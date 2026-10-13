@@ -51,6 +51,17 @@ bin/rails owner:bootstrap
 
 The task name and environment variables are retained as the deployment interface. It securely prompts for a password, which is stored only as a BCrypt digest. For non-interactive automation, provide `OWNER_PASSWORD` through a secret manager. Run the task again with a unique email and username to create another administrator. Sign in at `/login`; the admin navigation appears only while a platform administrator is signed in.
 
+## Fonts and Performance
+
+Inter's variable fonts and stylesheet are fingerprinted by Propshaft for application pages.
+Static error pages use the explicitly versioned `public/inter-v4.1.css` and matching
+font files so they can render without Rails. When updating those fallback assets,
+use new versioned filenames and update the static pages rather than overwriting
+long-cached URLs. Both copies use the license in `public/fonts/Inter-LICENSE.txt`.
+
+See [Rails performance checks](docs/rails-performance.md) for the collection-query
+and Markdown-rendering baselines.
+
 ## Links
 
 - [Live collection](https://c0mn.com/)

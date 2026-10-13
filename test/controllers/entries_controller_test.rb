@@ -185,7 +185,7 @@ class EntriesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     %w[
-      variables base shell form-control site-header archive-header archive-search
+      inter variables base shell form-control site-header archive-header archive-search
       tag-nav entry-grid entry-card entry-detail markdown button pagination
       entry-form admin authentication not-found site-footer about states
     ].each do |sheet|
@@ -215,6 +215,25 @@ class EntriesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, "--border-default: 1px solid var(--color-border)"
     assert_not_includes response.body, "--border-default: var(--border-default)"
+  end
+
+  test "serves fingerprinted Inter styles and both variable fonts" do
+    get root_path
+    stylesheet = css_select("link[href^='/assets/inter-']").first["href"]
+
+    get stylesheet
+    assert_response :success
+    font_urls = response.body.scan(/url\(["']?([^"')]+\.woff2)/).flatten
+    assert_equal 2, font_urls.size
+
+    font_urls.each do |url|
+      assert_match(%r{InterVariable(?:-Italic)?-[a-f0-9]+\.woff2}, url)
+      get URI.join("http://www.example.com#{stylesheet}", url).request_uri
+
+      assert_response :success
+      assert_equal "font/woff2", response.media_type
+      assert_equal "wOF2", response.body.byteslice(0, 4)
+    end
   end
 
   test "renders entry notes as sanitized Markdown" do
