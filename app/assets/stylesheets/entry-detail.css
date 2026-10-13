@@ -64,9 +64,9 @@
   }
 
   .entry-detail__title {
-    font-size: clamp(40px, 7vw, 112px);
+    font-size: clamp(36px, 6vw, 96px);
     font-weight: 400;
-    line-height: 0.9;
+    line-height: 1.2;
     margin: 0 0 var(--space-7);
     max-width: 15ch;
   }

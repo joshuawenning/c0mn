@@ -75,9 +75,9 @@
   }
 
   .entry-card__title {
-    font-size: clamp(15px, 1.4vw, 20px);
+    font-size: clamp(14px, 1.3vw, 18px);
     font-weight: 500;
-    line-height: 1.1;
+    line-height: 1.4;
     margin: var(--space-3) 0 0;
   }
 

@@ -37,9 +37,9 @@
   }
 
   .admin-list__title {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 500;
-    line-height: 1.1;
+    line-height: 1.4;
     margin: 8px 0;
   }
 
@@ -106,7 +106,7 @@
   .admin-preview__placeholder svg {
     fill: none;
     height: 24px;
-    stroke: currentColor;
+    stroke: var(--color-muted);
     stroke-linecap: round;
     stroke-linejoin: round;
     stroke-width: 1;
