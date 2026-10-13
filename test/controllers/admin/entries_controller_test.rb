@@ -41,6 +41,25 @@ class Admin::EntriesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".pagination a[href='#{admin_entries_path(page: 1)}']", text: "Previous"
   end
 
+  test "treats malformed page numbers as the first page" do
+    [ [ "2" ], { value: "2" }, "abc", "0", "-2" ].each do |page|
+      get admin_entries_path, params: { page: page }
+
+      assert_response :success
+      assert_select ".admin-row", count: 1
+    end
+  end
+
+  test "rejects malformed entry parameters without writing records" do
+    [ "not an entry", [ { title: "Unexpected" } ] ].each do |entry|
+      assert_no_difference "Entry.count" do
+        post admin_entries_path, params: { entry: entry }
+      end
+
+      assert_response :bad_request
+    end
+  end
+
   test "shows the image preview on admin detail and edit pages" do
     get admin_entry_path(@entry)
 
@@ -105,6 +124,7 @@ class Admin::EntriesControllerTest < ActionDispatch::IntegrationTest
     patch admin_entry_path(@entry), params: { entry: { title: "Updated Garden", tag_list: "ecology" } }
 
     assert_redirected_to admin_entry_path(@entry)
+    assert_response :see_other
     assert_equal "Updated Garden", @entry.reload.title
     assert_equal [ "ecology" ], @entry.tags.pluck(:name)
   end
@@ -143,6 +163,7 @@ class Admin::EntriesControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_redirected_to new_session_path
+    assert_response :see_other
   end
 
   test "forbids authenticated non-admin users" do

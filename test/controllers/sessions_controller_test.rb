@@ -28,6 +28,20 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".flash[role='alert'][aria-atomic='true']", /Try another email address or password/
   end
 
+  test "missing or malformed credentials fail without creating a session" do
+    [ {}, { email_address: @user.email_address }, { password: "a secure password" },
+      { email_address: [ @user.email_address ], password: "a secure password" },
+      { email_address: @user.email_address, password: { value: "a secure password" } } ].each do |credentials|
+      assert_no_difference "Session.count" do
+        post session_path, params: credentials
+      end
+
+      assert_response :see_other
+      assert_redirected_to new_session_path
+      assert_nil cookies[:session_id]
+    end
+  end
+
   test "destroy" do
     sign_in_as(@user)
 

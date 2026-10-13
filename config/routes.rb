@@ -3,7 +3,7 @@ Rails.application.routes.draw do
   post "login", to: "sessions#create", as: :session
   delete "logout", to: "sessions#destroy", as: :logout
   resources :passwords, param: :token, only: %i[new create edit update]
-  match "/:status", to: "errors#show", via: :all, constraints: { status: /404|422|500/ }
+  match "/:status", to: "errors#show", via: :all, constraints: { status: /400|404|422|500/ }
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

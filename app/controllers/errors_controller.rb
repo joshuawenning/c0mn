@@ -7,7 +7,8 @@ class ErrorsController < ApplicationController
     if status == 404
       render :not_found, status: status
     else
-      render file: Rails.public_path.join("errors/#{status}.html"), layout: false, status: status, content_type: "text/html"
+      file = status == 400 ? "400.html" : "errors/#{status}.html"
+      render file: Rails.public_path.join(file), layout: false, status: status, content_type: "text/html"
     end
   end
 end

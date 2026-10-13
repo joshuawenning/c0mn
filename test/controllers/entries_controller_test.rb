@@ -107,6 +107,20 @@ class EntriesControllerTest < ActionDispatch::IntegrationTest
     assert_equal first_page_queries.size, full_page_queries.size
     assert_equal 1, full_page_queries.count { |query| query.include?('FROM "taggings"') }
     assert_equal 2, full_page_queries.count { |query| query.include?('FROM "tags"') }
+    assert_equal 1, full_page_queries.count { |query| query.include?('COUNT(*) FROM "entries"') }
+    assert_empty full_page_queries.grep(/SELECT 1 AS one FROM "entries"/)
+  end
+
+  test "treats malformed collection filters as absent" do
+    Entry.create!(title: "Visible", url: "https://example.com/visible")
+
+    [ { page: [ "2" ] }, { page: { value: "2" } }, { q: { value: "missing" }, tag: [ "missing" ] },
+      { page: "abc" }, { page: "0" }, { page: "-2" } ].each do |filters|
+      get root_path, params: filters
+
+      assert_response :success
+      assert_select ".entry-card", count: 1
+    end
   end
 
   test "preserves search and tag filters across pagination" do

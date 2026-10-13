@@ -5,7 +5,7 @@ module Admin
     before_action :set_entry, only: %i[show edit update destroy]
 
     def index
-      @page = [ params[:page].to_i, 1 ].max
+      @page = [ params.permit(:page)[:page].to_i, 1 ].max
       @entry_count = Entry.count
       @total_pages = (@entry_count.to_f / PAGE_SIZE).ceil
       @page = [ @page, [ @total_pages, 1 ].max ].min
@@ -26,7 +26,7 @@ module Admin
       @entry = Entry.new(entry_params)
 
       if Entries::Save.new(@entry).call
-        redirect_to admin_entry_path(@entry), notice: "Entry saved."
+        redirect_to admin_entry_path(@entry), notice: "Entry saved.", status: :see_other
       else
         render :new, status: :unprocessable_entity
       end
@@ -36,7 +36,7 @@ module Admin
       @entry.assign_attributes(entry_params)
 
       if Entries::Save.new(@entry).call
-        redirect_to admin_entry_path(@entry), notice: "Entry updated."
+        redirect_to admin_entry_path(@entry), notice: "Entry updated.", status: :see_other
       else
         render :edit, status: :unprocessable_entity
       end
@@ -57,7 +57,7 @@ module Admin
     end
 
     def entry_params
-      params.require(:entry).permit(:title, :url, :image_url, :source_name, :media_kind, :notes, :tag_list)
+      params.expect(entry: [ :title, :url, :image_url, :source_name, :media_kind, :notes, :tag_list ])
     end
   end
 end
