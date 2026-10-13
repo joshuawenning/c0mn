@@ -23,7 +23,6 @@
   .archive-header__title {
     font-size: clamp(32px, 5vw, 64px);
     font-weight: 700;
-    letter-spacing: -0.05em;
     line-height: 0.9;
     margin: 0;
 

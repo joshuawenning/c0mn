@@ -48,7 +48,6 @@
     color: var(--color-accent);
     font-size: clamp(160px, 34vw, 560px);
     font-weight: 700;
-    letter-spacing: -0.12em;
     line-height: 0.58;
     margin: 0 0 0 -0.08em;
     min-width: 0;
@@ -71,7 +70,6 @@
   .not-found__message h1 {
     font-size: clamp(36px, 5vw, var(--space-10));
     font-weight: 400;
-    letter-spacing: -0.06em;
     line-height: 0.95;
     margin: 0;
   }

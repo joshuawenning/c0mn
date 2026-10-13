@@ -65,7 +65,6 @@
   .entry-detail__title {
     font-size: clamp(40px, 7vw, 112px);
     font-weight: 400;
-    letter-spacing: -0.06em;
     line-height: 0.9;
     margin: 0 0 var(--space-7);
     max-width: 15ch;
