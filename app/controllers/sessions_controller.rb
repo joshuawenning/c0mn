@@ -7,7 +7,10 @@ class SessionsController < ApplicationController
 
   def create
     credentials = params.permit(:email_address, :password)
-    if user = User.authenticate_by(email_address: credentials[:email_address].to_s.strip.downcase, password: credentials[:password])
+    email_address = credentials[:email_address].to_s
+    password = credentials[:password] if credentials[:password].is_a?(String)
+
+    if user = User.authenticate_by(email_address: email_address, password: password)
       return_to = after_authentication_url
       reset_session
       start_new_session_for user

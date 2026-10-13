@@ -31,9 +31,10 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
   test "missing or malformed credentials fail without creating a session" do
     [ {}, { email_address: @user.email_address }, { password: "a secure password" },
       { email_address: [ @user.email_address ], password: "a secure password" },
-      { email_address: @user.email_address, password: { value: "a secure password" } } ].each do |credentials|
+      { email_address: @user.email_address, password: { value: "a secure password" } },
+      { email_address: @user.email_address, password: 123 } ].each do |credentials|
       assert_no_difference "Session.count" do
-        post session_path, params: credentials
+        post session_path, params: credentials, as: :json
       end
 
       assert_response :see_other
