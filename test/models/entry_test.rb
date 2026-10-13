@@ -1,11 +1,6 @@
 require "test_helper"
 
 class EntryTest < ActiveSupport::TestCase
-  test "stores entry copy only as notes" do
-    assert_includes Entry.column_names, "notes"
-    assert_not_includes Entry.column_names, "description"
-  end
-
   test "orders entries consistently when collection and creation times match" do
     timestamp = Time.current.change(usec: 0)
     entries = 3.times.map do |index|

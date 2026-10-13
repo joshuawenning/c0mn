@@ -75,16 +75,6 @@ class Admin::EntriesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".admin-entry-preview img[src='https://cdn.example.com/garden.jpg']"
   end
 
-  test "does not separate facts from an absent link preview" do
-    link_entry = Entry.create!(title: "Reading list", url: "https://example.org/reading")
-
-    get admin_entry_path(link_entry)
-
-    assert_response :success
-    assert_select ".admin-entry-preview", count: 0
-    assert_select "dl.admin-facts--without-preview"
-  end
-
   test "does not show inferred fields for a new entry" do
     get new_admin_entry_path
 

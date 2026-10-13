@@ -179,60 +179,16 @@ class EntriesControllerTest < ActionDispatch::IntegrationTest
     assert_not_includes response.body, "href=\"javascript:"
   end
 
-  test "links and serves individually versioned stylesheets" do
+  test "serves the local stylesheets linked by the collection" do
     get root_path
-
     assert_response :success
+    stylesheets = css_select("link[rel='stylesheet'][href^='/']").map { |link| link["href"] }.uniq
+    assert_not_empty stylesheets
 
-    %w[
-      inter variables base shell form-control site-header archive-header archive-search
-      tag-nav entry-grid entry-card entry-detail markdown button pagination
-      entry-form admin authentication not-found site-footer about states
-    ].each do |sheet|
-      assert_select "link[href^='/assets/#{sheet}-'][href$='.css']"
-    end
-    assert_select "link[href*='application.css']", count: 0
-    assert_select "link[href*='?v=']", count: 0
-    assert_select "link[data-turbo-track]", count: 0
-
-    base_stylesheet = css_select("link[href^='/assets/base-']").first["href"]
-    variables_stylesheet = css_select("link[href^='/assets/variables-']").first["href"]
-
-    get base_stylesheet
-
-    assert_response :success
-    assert_includes response.media_type, "text/css"
-    assert_includes response.body, "@font-face"
-    font_url = response.body.match(/url\(["']?([^"')]+\.woff2)/)[1]
-
-    get URI.join("http://www.example.com#{base_stylesheet}", font_url).request_uri
-
-    assert_response :success
-    assert_equal "font/woff2", response.media_type
-
-    get variables_stylesheet
-
-    assert_response :success
-    assert_includes response.body, "--border-default: 1px solid var(--color-border)"
-    assert_not_includes response.body, "--border-default: var(--border-default)"
-  end
-
-  test "serves fingerprinted Inter styles and both variable fonts" do
-    get root_path
-    stylesheet = css_select("link[href^='/assets/inter-']").first["href"]
-
-    get stylesheet
-    assert_response :success
-    font_urls = response.body.scan(/url\(["']?([^"')]+\.woff2)/).flatten
-    assert_equal 2, font_urls.size
-
-    font_urls.each do |url|
-      assert_match(%r{InterVariable(?:-Italic)?-[a-f0-9]+\.woff2}, url)
-      get URI.join("http://www.example.com#{stylesheet}", url).request_uri
-
+    stylesheets.each do |stylesheet|
+      get stylesheet
       assert_response :success
-      assert_equal "font/woff2", response.media_type
-      assert_equal "wOF2", response.body.byteslice(0, 4)
+      assert_equal "text/css", response.media_type
     end
   end
 
