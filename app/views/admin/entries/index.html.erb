@@ -12,7 +12,7 @@
         <%= render "admin/entries/image_preview", entry: entry, lazy: true, placeholder: true %>
         <div class="admin-list__content">
           <div class="admin-list__meta">
-            <span><%= entry.source_name %></span>
+            <span class="admin-list__source"><%= entry.source_name %></span>
             <time datetime="<%= entry.collected_at.to_date.iso8601 %>"><%= entry.collected_at.to_date.to_fs(:short) %></time>
           </div>
           <h2 class="admin-list__title"><%= link_to entry.title, admin_entry_path(entry) %></h2>

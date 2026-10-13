@@ -11,7 +11,7 @@
     font-family: var(--font-mono);
     font-size: var(--font-size-xs);
     margin: 0 0 8px;
-    text-transform: uppercase;
+    text-transform: capitalize;
   }
 
   .authentication-panel h1 {

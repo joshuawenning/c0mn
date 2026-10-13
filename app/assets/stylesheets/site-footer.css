@@ -9,11 +9,17 @@
     grid-template-columns: auto 1fr auto;
     margin-top: var(--space-7);
     padding: 16px 0 0;
-    text-transform: uppercase;
+    text-transform: capitalize;
   }
 
   .site-footer p {
     margin: 0;
+  }
+
+  .site-footer__copyright,
+  .site-footer__credit span,
+  .site-footer__credit a {
+    text-transform: none;
   }
 
   .site-footer a {

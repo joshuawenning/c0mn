@@ -37,6 +37,7 @@
     display: flex;
     gap: var(--space-1);
     margin: 6px 0;
+    text-transform: capitalize;
   }
 
   .markdown-editor__toolbar button {

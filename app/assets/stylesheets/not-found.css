@@ -27,7 +27,7 @@
   .not-found__code,
   .not-found__eyebrow {
     font-size: var(--font-size-xs);
-    text-transform: uppercase;
+    text-transform: capitalize;
   }
 
   .not-found__body {
@@ -84,7 +84,7 @@
   .not-found__link {
     display: inline-block;
     font-size: var(--font-size-sm);
-    text-transform: uppercase;
+    text-transform: capitalize;
     text-underline-offset: var(--space-1);
 
     &:hover {

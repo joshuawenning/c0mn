@@ -17,7 +17,7 @@
     font-family: var(--font-mono);
     font-size: var(--font-size-xs);
     margin: 0 0 6px;
-    text-transform: uppercase;
+    text-transform: capitalize;
   }
 
   .archive-header__title {

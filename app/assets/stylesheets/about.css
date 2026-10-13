@@ -15,7 +15,7 @@
   .about-process__steps span {
     font-family: var(--font-mono);
     font-size: var(--font-size-sm);
-    text-transform: uppercase;
+    text-transform: capitalize;
   }
 
   .about-hero__eyebrow {
@@ -115,7 +115,7 @@
   .about-system__table thead th {
     font-family: var(--font-mono);
     font-size: var(--font-size-sm);
-    text-transform: uppercase;
+    text-transform: capitalize;
   }
 
   .about-system__table tbody th {
@@ -127,30 +127,12 @@
   .about-system__table td:nth-child(2) {
     font-family: var(--font-mono);
     font-size: var(--font-size-sm);
+    text-transform: capitalize;
     width: 34%;
   }
 
   .about-system__table td:nth-child(3) {
     width: 48%;
-  }
-
-  .about-footer {
-    align-items: center;
-    border-top: var(--border-default);
-    display: flex;
-    font-family: var(--font-mono);
-    font-size: var(--font-size-sm);
-    justify-content: space-between;
-    padding-top: var(--space-4);
-    text-transform: uppercase;
-  }
-
-  .about-footer p {
-    margin: 0;
-  }
-
-  .about-footer a {
-    text-underline-offset: 3px;
   }
 
   @media (width <= 48rem) {
@@ -171,10 +153,5 @@
       min-height: 240px;
     }
 
-    .about-footer {
-      align-items: flex-start;
-      flex-direction: column;
-      gap: var(--space-2);
-    }
   }
 }

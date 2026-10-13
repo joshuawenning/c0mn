@@ -31,8 +31,9 @@
     margin: 0 0 8px;
   }
 
+  .entry-detail__date,
   .entry-detail__kind {
-    text-transform: uppercase;
+    text-transform: capitalize;
   }
 
   .entry-detail__tags {

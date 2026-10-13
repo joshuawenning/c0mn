@@ -26,6 +26,10 @@
     min-height: var(--control-min-height);
   }
 
+  .form-control:is(select, [name="entry[title]"]) {
+    text-transform: capitalize;
+  }
+
   .form-field small {
     color: var(--color-muted);
     display: block;

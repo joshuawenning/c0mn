@@ -33,7 +33,7 @@
     font-family: var(--font-mono);
     font-size: var(--font-size-2xs);
     gap: var(--space-3);
-    text-transform: uppercase;
+    text-transform: capitalize;
   }
 
   .admin-list__title {
@@ -41,6 +41,10 @@
     font-weight: 500;
     line-height: 1.1;
     margin: 8px 0;
+  }
+
+  .admin-list__source {
+    text-transform: none;
   }
 
   .admin-list__url,
@@ -95,7 +99,7 @@
     height: 80px;
     justify-content: center;
     padding: var(--space-2);
-    text-transform: uppercase;
+    text-transform: capitalize;
     width: 112px;
   }
 
@@ -130,7 +134,7 @@
   .admin-facts dt {
     font-family: var(--font-mono);
     font-size: var(--font-size-xs);
-    text-transform: uppercase;
+    text-transform: capitalize;
   }
 
   @media (width <= 40rem) {
