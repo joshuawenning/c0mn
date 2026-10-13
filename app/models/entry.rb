@@ -1,7 +1,7 @@
 class Entry < ApplicationRecord
   MEDIA_KINDS = %w[link image video audio article].freeze
 
-  has_many :taggings, dependent: :destroy
+  has_many :taggings, dependent: :delete_all
   has_many :tags, -> { order(:name) }, through: :taggings
 
   validates :title, :url, :media_kind, :collected_at, presence: true
@@ -48,20 +48,43 @@ class Entry < ApplicationRecord
   def tag_list
     return @tag_list if defined?(@tag_list)
 
-    tags.map(&:name).join(", ")
+    tags.map(&:name).sort.join(", ")
   end
 
   def tag_list=(names)
     @tag_list = names.to_s
   end
 
+  def save_with_tags
+    transaction do
+      save!
+      if defined?(@tag_list)
+        names = @tag_list.split(",").filter_map { |name| Tag.normalize_name(name) }.uniq
+        self.tags = names.map { |name| Tag.find_or_create_named!(name) }
+      end
+    end
+
+    remove_instance_variable(:@tag_list) if defined?(@tag_list)
+    true
+  rescue ActiveRecord::RecordInvalid => error
+    errors.add(:tag_list, "#{error.record.name}: #{error.record.errors.full_messages.to_sentence}") unless error.record == self
+    false
+  rescue ActiveRecord::RecordNotUnique
+    if self.class.where(url: url).where.not(id: id).exists?
+      errors.add(:url, :taken)
+    else
+      errors.add(:base, "could not be saved because another change was made; please try again")
+    end
+    false
+  end
+
   def source_name=(value)
-    self.source_name_overridden = value.present? if has_attribute?(:source_name_overridden)
+    self.source_name_overridden = value.present?
     super
   end
 
   def media_kind=(value)
-    self.media_kind_overridden = value.present? if has_attribute?(:media_kind_overridden)
+    self.media_kind_overridden = value.present?
     super
   end
 

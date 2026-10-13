@@ -34,6 +34,58 @@ class EntryTest < ActiveSupport::TestCase
     entry = create_entry!(title: "Garden", url: "https://example.com/garden", tag_list: "Landscape, ecology, landscape")
 
     assert_equal [ "ecology", "landscape" ], entry.tags.order(:name).pluck(:name)
+    assert_equal "ecology, landscape", entry.tag_list
+  end
+
+  test "validates once and uses fresh tags on subsequent saves" do
+    entry = Entry.new(title: "Garden", url: "https://example.com/garden", tag_list: "landscape")
+    validations = 0
+    entry.define_singleton_method(:valid?) do |*arguments|
+      validations += 1
+      super(*arguments)
+    end
+
+    assert entry.save_with_tags
+    assert_equal 1, validations
+
+    entry.tag_list = "Ecology, ecology"
+    assert entry.save_with_tags
+    assert_equal "ecology", entry.tag_list
+    assert_equal [ "ecology" ], entry.reload.tags.pluck(:name)
+  end
+
+  test "rolls back the entry and new tags when a later tag is invalid" do
+    Tag.create!(name: "c++")
+    entry = Entry.new(title: "Languages", url: "https://example.com/languages", tag_list: "new tag, c#")
+
+    assert_no_difference [ "Entry.count", "Tag.count", "Tagging.count" ] do
+      assert_not entry.save_with_tags
+    end
+
+    assert entry.new_record?
+    assert_equal "new tag, c#", entry.tag_list
+    assert entry.errors[:tag_list].any?
+  end
+
+  test "rolls back an edited entry and retains submitted tags on failure" do
+    Tag.create!(name: "c++")
+    entry = create_entry!(title: "Original", url: "https://example.com/original", tag_list: "shared")
+    entry.assign_attributes(title: "Edited", tag_list: "new tag, c#")
+
+    assert_no_difference [ "Tag.count", "Tagging.count" ] do
+      assert_not entry.save_with_tags
+    end
+    assert_equal "new tag, c#", entry.tag_list
+    assert_equal "Original", Entry.find(entry.id).title
+    assert_equal [ "shared" ], Entry.find(entry.id).tags.pluck(:name)
+  end
+
+  test "resolves color collisions between new tags in one submission" do
+    entry = create_entry!(title: "Colors", url: "https://example.com/colors", tag_list: "collision-292, collision-3137")
+
+    assert_equal 2, entry.tags.count
+    assert_equal 2, entry.tags.pluck(:color).uniq.size
+    assert_equal "#81604e", Tag.find_by!(name: "collision-292").color
   end
 
   test "assigns each new tag a distinct color" do
@@ -108,11 +160,22 @@ class EntryTest < ActiveSupport::TestCase
     assert_equal "article", entry.media_kind
   end
 
+  test "clearing metadata overrides restores inference" do
+    entry = Entry.create!(title: "Reference", url: "https://example.com/image.jpg", source_name: "Custom", media_kind: "article")
+
+    entry.update!(source_name: "", media_kind: "")
+
+    assert_equal "example.com", entry.source_name
+    assert_equal "image", entry.media_kind
+    assert_not entry.source_name_overridden?
+    assert_not entry.media_kind_overridden?
+  end
+
   test "preserves tags when another attribute is invalid" do
     entry = create_entry!(title: "Garden", url: "https://example.com/garden", tag_list: "landscape")
 
     entry.assign_attributes(title: "", tag_list: "ecology")
-    assert_not Entries::Save.new(entry).call
+    assert_not entry.save_with_tags
 
     assert_equal [ "landscape" ], entry.reload.tags.pluck(:name)
   end
@@ -121,7 +184,7 @@ class EntryTest < ActiveSupport::TestCase
     entry = create_entry!(title: "Garden", url: "https://example.com/garden", tag_list: "landscape")
 
     entry.tag_list = "ecology"
-    assert Entries::Save.new(entry).call
+    assert entry.save_with_tags
 
     assert Tag.exists?(name: "landscape")
     assert Tag.exists?(name: "ecology")
@@ -136,7 +199,7 @@ class EntryTest < ActiveSupport::TestCase
     second = create_entry!(title: "Second", url: "https://example.com/second", tag_list: "shared")
 
     first.tag_list = "replacement"
-    assert Entries::Save.new(first).call
+    assert first.save_with_tags
 
     assert_equal [ "shared" ], second.reload.tags.pluck(:name)
   end
@@ -161,7 +224,7 @@ class EntryTest < ActiveSupport::TestCase
     entry = Entry.new(title: "Languages", url: "https://example.com/languages", tag_list: "c#")
 
     assert_no_difference "Entry.count" do
-      assert_not Entries::Save.new(entry).call
+      assert_not entry.save_with_tags
     end
     assert entry.errors[:tag_list].any?
   end
@@ -170,7 +233,7 @@ class EntryTest < ActiveSupport::TestCase
     create_entry!(title: "Original", url: "https://example.com/duplicate")
     duplicate = Entry.new(title: "Duplicate", url: "https://example.com/duplicate", tag_list: "example")
 
-    assert_not Entries::Save.new(duplicate).call
+    assert_not duplicate.save_with_tags
     assert_includes duplicate.errors[:url], "has already been taken"
     assert_empty duplicate.errors[:tag_list]
   end

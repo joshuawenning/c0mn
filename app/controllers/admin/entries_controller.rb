@@ -25,7 +25,7 @@ module Admin
     def create
       @entry = Entry.new(entry_params)
 
-      if Entries::Save.new(@entry).call
+      if @entry.save_with_tags
         redirect_to admin_entry_path(@entry), notice: "Entry saved.", status: :see_other
       else
         render :new, status: :unprocessable_entity
@@ -35,7 +35,7 @@ module Admin
     def update
       @entry.assign_attributes(entry_params)
 
-      if Entries::Save.new(@entry).call
+      if @entry.save_with_tags
         redirect_to admin_entry_path(@entry), notice: "Entry updated.", status: :see_other
       else
         render :edit, status: :unprocessable_entity

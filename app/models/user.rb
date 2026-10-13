@@ -1,6 +1,6 @@
 class User < ApplicationRecord
   has_secure_password
-  has_many :sessions, dependent: :destroy
+  has_many :sessions, dependent: :delete_all
 
   normalizes :email_address, with: ->(e) { e.strip.downcase }
   normalizes :username, with: ->(username) { username.strip.downcase }
@@ -12,16 +12,14 @@ class User < ApplicationRecord
     length: { in: 3..30 }, format: { with: /\A[a-z0-9]+(?:[_-][a-z0-9]+)*\z/ }
 
   def reset_password(attributes)
-    reset = false
-
     transaction do
       assign_attributes(attributes)
       if save(context: :password_reset)
         sessions.delete_all
-        reset = true
+        true
+      else
+        false
       end
     end
-
-    reset
   end
 end

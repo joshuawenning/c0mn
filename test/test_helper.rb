@@ -14,7 +14,7 @@ module ActiveSupport
     # Add more helper methods to be used by all tests here...
     def create_entry!(**attributes)
       entry = Entry.new(attributes)
-      raise ActiveRecord::RecordInvalid.new(entry) unless Entries::Save.new(entry).call
+      raise ActiveRecord::RecordInvalid.new(entry) unless entry.save_with_tags
 
       entry
     end
