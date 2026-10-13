@@ -93,6 +93,33 @@ class EntriesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".pagination a", text: "Previous", count: 1
   end
 
+  test "loads tags in a bounded number of queries across a full collection page" do
+    create_entry!(title: "First", url: "https://example.com/first", tag_list: "shared, reference")
+    first_page_queries = collection_queries { get root_path }
+
+    (EntriesController::PAGE_SIZE - 1).times do |index|
+      create_entry!(title: "Entry #{index}", url: "https://example.com/loading-#{index}", tag_list: "shared, reference")
+    end
+    full_page_queries = collection_queries { get root_path }
+
+    assert_response :success
+    assert_select ".entry-card", count: EntriesController::PAGE_SIZE
+    assert_equal first_page_queries.size, full_page_queries.size
+    assert_equal 1, full_page_queries.count { |query| query.include?('FROM "taggings"') }
+    assert_equal 2, full_page_queries.count { |query| query.include?('FROM "tags"') }
+  end
+
+  test "preserves search and tag filters across pagination" do
+    (EntriesController::PAGE_SIZE + 1).times do |index|
+      create_entry!(title: "House #{index}", url: "https://example.com/filter-#{index}", tag_list: "architecture")
+    end
+
+    get root_path(q: "House", tag: "architecture")
+
+    assert_response :success
+    assert_select ".pagination a[href='#{root_path(q: 'House', tag: 'architecture', page: 2)}']", text: "Next"
+  end
+
   test "includes a content security policy" do
     get root_path
 
@@ -195,4 +222,18 @@ class EntriesControllerTest < ActionDispatch::IntegrationTest
     assert_select "nav.entry-detail__tags[aria-label='Entry tags']", text: /reference/
     assert_select "a.entry-detail__url[href='https://example.com/notes'][target='_blank'][rel='noopener']"
   end
+
+  private
+    def collection_queries
+      queries = []
+      subscriber = ->(_name, _start, _finish, _id, payload) {
+        queries << payload[:sql] if payload[:sql].match?(/\ASELECT/i) && !payload[:cached] && payload[:name] != "SCHEMA"
+      }
+
+      ActiveRecord::Base.uncached do
+        ActiveSupport::Notifications.subscribed(subscriber, "sql.active_record") { yield }
+      end
+
+      queries
+    end
 end
