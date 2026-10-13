@@ -3,6 +3,12 @@ class Entry < ApplicationRecord
 
   has_many :taggings, dependent: :delete_all
   has_many :tags, -> { order(:name) }, through: :taggings
+  has_one_attached :image_master
+  has_one_attached :image_card
+  has_one_attached :image_thumbnail
+
+  before_save :prepare_image_import
+  after_commit :enqueue_image_import, on: %i[create update]
 
   validates :title, :url, :media_kind, :collected_at, presence: true
   validates :url, uniqueness: true
@@ -95,6 +101,19 @@ class Entry < ApplicationRecord
     candidate if parsed_candidate.image?
   end
 
+  def retry_image_import!
+    with_lock do
+      return false unless embeddable_image_url
+
+      update!(image_import_token: SecureRandom.uuid, image_import_status: "pending", image_import_error: nil)
+    end
+    true
+  end
+
+  def local_image(kind = :master)
+    public_send("image_#{kind}")
+  end
+
   def youtube_embed_url
     return unless media_kind == "video"
 
@@ -102,6 +121,21 @@ class Entry < ApplicationRecord
   end
 
   private
+
+  def prepare_image_import
+    return unless new_record? || will_save_change_to_url? || will_save_change_to_image_url? || will_save_change_to_media_kind?
+
+    previous_source = media_kind_in_database == "image" ? url_in_database : image_url_in_database
+    return if previous_source == embeddable_image_url
+
+    self.image_import_token = SecureRandom.uuid
+    self.image_import_status = embeddable_image_url ? "pending" : "none"
+    self.image_import_error = nil
+  end
+
+  def enqueue_image_import
+    ImportEntryImageJob.perform_later(id, image_import_token) if saved_change_to_image_import_token? && image_import_token
+  end
 
   def set_collected_at
     self.collected_at ||= Time.current

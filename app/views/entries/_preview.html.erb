@@ -1,5 +1,7 @@
-<% if (image_url = entry.embeddable_image_url) %>
-  <%= image_tag image_url, alt: "", loading: lazy ? "lazy" : nil, referrerpolicy: "no-referrer" %>
+<% if (image = local_entry_image_tag(entry, kind: allow_embed ? :master : :card, alt: "", lazy: lazy)) %>
+  <%= image %>
+<% elsif entry.embeddable_image_url %>
+  <span><%= entry.image_import_status == "failed" ? "Image unavailable" : "Image pending" %></span>
 <% elsif allow_embed && (embed_url = entry.youtube_embed_url) %>
   <%= tag.iframe src: embed_url, title: entry.title, loading: lazy ? "lazy" : nil, allowfullscreen: true %>
 <% elsif linked_fallback %>

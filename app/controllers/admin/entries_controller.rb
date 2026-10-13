@@ -7,7 +7,7 @@ module Admin
     before_action :set_entry, only: %i[show edit update destroy]
 
     def index
-      @entries = paginate(Entry.recent, per_page: PAGE_SIZE)
+      @entries = paginate(Entry.recent.with_attached_image_thumbnail, per_page: PAGE_SIZE)
     end
 
     def show

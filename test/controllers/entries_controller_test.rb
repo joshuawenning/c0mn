@@ -1,6 +1,8 @@
 require "test_helper"
+require_relative "../test_helpers/image_import_test_helper"
 
 class EntriesControllerTest < ActionDispatch::IntegrationTest
+  include ImageImportTestHelper
   test "renders the public collection" do
     entry = create_entry!(title: "A house in Mallorca", url: "https://example.com/house.jpg", tag_list: "architecture")
 
@@ -14,7 +16,7 @@ class EntriesControllerTest < ActionDispatch::IntegrationTest
     end
     assert_not_empty skip_targets
     assert_rendered_entries entry
-    assert_select "img[src='#{entry.url}']"
+    assert_select "img[src='#{entry.url}']", count: 0
     assert_select "a[href='#{admin_root_path}']", count: 0
     assert_select "a[href='#{about_path}']"
   end
@@ -138,13 +140,19 @@ class EntriesControllerTest < ActionDispatch::IntegrationTest
     assert_includes policy, "object-src 'none'"
   end
 
-  test "renders remote images without sending a referrer" do
-    Entry.create!(title: "Image", url: "https://example.com/image.jpg")
+  test "renders optimized local previews and keeps the source link" do
+    entry = Entry.create!(title: "Image", url: "https://example.com/image.jpg")
+    import_image(entry)
 
     get root_path
 
     assert_response :success
-    assert_select "img[src='https://example.com/image.jpg'][referrerpolicy='no-referrer']"
+    assert_select "img[src*='/rails/active_storage/'][width='640'][height='320'][decoding='async']"
+    assert_select "img[src='#{entry.url}']", count: 0
+    get entry_path(entry)
+    assert_response :success
+    assert_select "img[srcset][sizes][width='800']"
+    assert_select "a[href='#{entry.url}']"
   end
 
   test "only embeds videos on the entry detail page" do

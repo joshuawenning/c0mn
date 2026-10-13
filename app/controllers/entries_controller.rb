@@ -12,11 +12,11 @@ class EntriesController < ApplicationController
     @active_tag = filters[:tag].to_s.strip
     @tags = Tag.popular
     filtered_entries = Entry.tagged_with(@active_tag).search(@query)
-    @entries = paginate(filtered_entries.recent, per_page: PAGE_SIZE).includes(:tags).load
+    @entries = paginate(filtered_entries.recent, per_page: PAGE_SIZE).includes(:tags).with_attached_image_card.load
     @total_entry_count = @query.blank? && @active_tag.blank? ? @entry_count : Entry.count
   end
 
   def show
-    @entry = Entry.includes(:tags).find(params[:id])
+    @entry = Entry.includes(:tags).with_attached_image_master.with_attached_image_card.find(params[:id])
   end
 end

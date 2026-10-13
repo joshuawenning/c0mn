@@ -5,6 +5,7 @@ require "tempfile"
 
 class ImageDownload
   class Error < StandardError; end
+  class TransientError < Error; end
   MAX_BYTES = 20.megabytes
   BLOCKED_NETWORKS = %w[0.0.0.0/8 10.0.0.0/8 100.64.0.0/10 127.0.0.0/8 169.254.0.0/16 172.16.0.0/12 192.0.0.0/24 192.0.2.0/24 192.168.0.0/16 198.18.0.0/15 198.51.100.0/24 203.0.113.0/24 224.0.0.0/4 240.0.0.0/4].map { |network| IPAddr.new(network) }.freeze
 
@@ -19,7 +20,7 @@ class ImageDownload
   def self.open(url)
     Tempfile.create([ "image-import", ".bin" ]) do |file|
       file.binmode
-      download(url, file)
+      Timeout.timeout(30) { download(url, file) }
       file.rewind
       yield file
     end
@@ -39,13 +40,14 @@ class ImageDownload
     http.read_timeout = 10
     http.max_retries = 0
     deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + 30
-    redirect = nil
-    http.start do
+    redirect = catch(:image_redirect) do
+      http.start do
       http.request(Net::HTTP::Get.new(uri.request_uri, "Accept" => "image/*", "Accept-Encoding" => "identity")) do |response|
         if response.is_a?(Net::HTTPRedirection)
           raise Error, "Too many image redirects" if redirects >= 3 || response["location"].blank?
-          redirect = URI.join(uri.to_s, response["location"]).to_s
+          throw :image_redirect, URI.join(uri.to_s, response["location"]).to_s
         else
+          raise TransientError, "Image host returned HTTP #{response.code}" if response.code.to_i >= 500 || response.code == "429"
           raise Error, "Image host returned HTTP #{response.code}" unless response.is_a?(Net::HTTPSuccess)
           raise Error, "Image download exceeds 20 MB" if response["content-length"].to_i > MAX_BYTES
           response.read_body do |chunk|
@@ -55,6 +57,8 @@ class ImageDownload
           end
         end
       end
+      end
+      nil
     end
     download(redirect, file, redirects + 1) if redirect
   rescue URI::InvalidURIError
