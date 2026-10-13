@@ -17,13 +17,7 @@
           <%= form.submit "Go", class: "archive-search__submit" %>
         </div>
       <% end %>
-      <nav class="site-nav" aria-label="Primary">
-        <%= link_to "Collection", root_path, class: "site-nav__link site-nav__link--active", aria: { current: "page" } %>
-        <%= link_to "About", about_path, class: "site-nav__link" %>
-        <% if authenticated? && Current.user.platform_admin? %>
-          <%= link_to "Admin", admin_root_path, class: "site-nav__link" %>
-        <% end %>
-      </nav>
+      <%= render "shared/site_navigation", active: :collection %>
     </div>
 
     <nav class="tag-nav" aria-label="Collection tags">
@@ -36,7 +30,7 @@
         <%= link_to root_path(tag: tag_record.slug, q: @query.presence), class: class_names("tag-nav__item", "tag-nav__item--active": @active_tag == tag_record.slug), aria: { current: @active_tag == tag_record.slug ? "page" : nil } do %>
           <%= tag_color_dot(tag_record) %>
           <span><%= tag_record.name %></span>
-          <span class="tag-nav__count"><%= tag_record.try(:taggings_count).to_i %></span>
+          <span class="tag-nav__count"><%= tag_record.taggings_count %></span>
         <% end %>
       <% end %>
     </nav>
@@ -76,13 +70,9 @@
       <% end %>
     </section>
 
-    <% if @total_pages > 1 %>
-      <nav class="pagination" aria-label="Collection pages">
-        <%= link_to "Previous", root_path(q: @query.presence, tag: @active_tag.presence, page: @page - 1), class: "button" if @page > 1 %>
-        <span class="pagination__status">Page <%= @page %> of <%= @total_pages %></span>
-        <%= link_to "Next", root_path(q: @query.presence, tag: @active_tag.presence, page: @page + 1), class: "button" if @page < @total_pages %>
-      </nav>
-    <% end %>
+    <%= render "shared/pagination", page: @page, total_pages: @total_pages, label: "Collection pages",
+      previous_path: root_path(q: @query.presence, tag: @active_tag.presence, page: @page - 1),
+      next_path: root_path(q: @query.presence, tag: @active_tag.presence, page: @page + 1) %>
   <% else %>
     <section id="collection-entries" class="empty-state empty-state--collection" tabindex="-1">
       <p>No entries found.</p>
