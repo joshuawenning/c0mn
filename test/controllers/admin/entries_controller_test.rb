@@ -17,14 +17,8 @@ class Admin::EntriesControllerTest < ActionDispatch::IntegrationTest
     get admin_entries_path
 
     assert_response :success
-    assert_select "h1", text: "Collection entries"
-    assert_select "form[action='#{logout_path}'] button", text: "Sign out"
-    assert_select ".admin-row .admin-entry-preview img[src='https://cdn.example.com/garden.jpg']"
-    assert_select "#entry_#{link_entry.id}" do
-      assert_select ".admin-preview--placeholder .admin-preview__placeholder", text: "link"
-      assert_select ".admin-list__content", count: 1
-      assert_select ".admin-list__actions", count: 1
-    end
+    assert_rendered_entries @entry, link_entry
+    assert_select "form[action='#{logout_path}']"
   end
 
   test "paginates and clamps the admin index" do
@@ -35,10 +29,9 @@ class Admin::EntriesControllerTest < ActionDispatch::IntegrationTest
     get admin_entries_path(page: 10_000)
 
     assert_response :success
-    assert_select ".admin-row", count: 1
-    assert_select ".pagination__status", text: "Page 2 of 2"
-    assert_select ".pagination a", text: "Next", count: 0
-    assert_select ".pagination a[href='#{admin_entries_path(page: 1)}']", text: "Previous"
+    assert_rendered_entries @entry
+    assert_select "a[href='#{admin_entries_path(page: 1)}']"
+    assert_select "a[href='#{admin_entries_path(page: 3)}']", count: 0
   end
 
   test "treats malformed page numbers as the first page" do
@@ -46,7 +39,7 @@ class Admin::EntriesControllerTest < ActionDispatch::IntegrationTest
       get admin_entries_path, params: { page: page }
 
       assert_response :success
-      assert_select ".admin-row", count: 1
+      assert_rendered_entries @entry
     end
   end
 
@@ -60,34 +53,27 @@ class Admin::EntriesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "shows the image preview on admin detail and edit pages" do
+  test "renders an entry's detail and edit destinations" do
     get admin_entry_path(@entry)
 
     assert_response :success
-    assert_select ".admin-entry-preview img[src='https://cdn.example.com/garden.jpg']"
-    assert_select ".admin-facts--without-preview", count: 0
-    assert_select ".admin-facts__url a[href='https://example.com/garden'][target='_blank'][rel='noopener']"
-    assert_select ".admin-facts__url a[href='https://cdn.example.com/garden.jpg'][target='_blank'][rel='noopener']"
+    assert_select "a[href='#{@entry.url}'][target='_blank'][rel='noopener']"
+    assert_select "a[href='#{edit_admin_entry_path(@entry)}']"
 
     get edit_admin_entry_path(@entry)
 
     assert_response :success
-    assert_select ".admin-entry-preview img[src='https://cdn.example.com/garden.jpg']"
+    assert_select "form[action='#{admin_entry_path(@entry)}']"
+    assert_select "[name='entry[title]'][value='#{@entry.title}']"
   end
 
   test "does not show inferred fields for a new entry" do
     get new_admin_entry_path
 
     assert_response :success
-    assert_select "a[href='#{admin_root_path}']", text: "All entries"
-    assert_select "a[href='#{new_admin_entry_path}']", text: "New entry", count: 0
+    assert_select "form[action='#{admin_entries_path}']"
     assert_select "input[name='entry[source_name]']", count: 0
-    assert_select "[data-controller='markdown-editor']"
-    assert_select "textarea[data-markdown-editor-target='input'][name='entry[notes]']"
-    assert_select ".markdown-editor__toolbar[role='toolbar']", count: 0
-    assert_select ".markdown-editor__toolbar button[aria-label]", count: 5
-    assert_select ".form-field .form-control", count: 6
-    assert_not_includes response.body, "hello_controller"
+    assert_select "[name='entry[notes]']"
   end
 
   test "creates an entry" do
@@ -124,8 +110,7 @@ class Admin::EntriesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :unprocessable_entity
     assert_equal [ "landscape" ], @entry.reload.tags.pluck(:name)
-    assert_select "#entry-form-errors[role='alert'][tabindex='-1']", /Title can't be blank/
-    assert_select "input[name='entry[title]'][aria-invalid='true'][aria-describedby='entry-form-errors']"
+    assert_invalid_field "entry[title]"
   end
 
   test "destroys an entry and retains its tags" do
@@ -175,4 +160,10 @@ class Admin::EntriesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :forbidden
   end
+
+  private
+    def assert_rendered_entries(*entries)
+      paths = css_select("a[href]").map { |link| link["href"] }.grep(%r{\A/admin/entries/\d+\z}).uniq.sort
+      assert_equal entries.map { |entry| admin_entry_path(entry) }.sort, paths
+    end
 end

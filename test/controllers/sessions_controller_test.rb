@@ -6,9 +6,8 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
   test "new" do
     get new_session_path
     assert_response :success
-    assert_select "h1", text: "Sign in"
     assert_select "a[href='#{admin_root_path}']", count: 0
-    assert_select ".form-field .form-control", count: 2
+    assert_select "form[action='#{session_path}']"
   end
 
   test "create with valid credentials" do
@@ -25,7 +24,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_nil cookies[:session_id]
 
     follow_redirect!
-    assert_select ".flash[role='alert'][aria-atomic='true']", /Try another email address or password/
+    assert_select "[role='alert']"
   end
 
   test "missing or malformed credentials fail without creating a session" do

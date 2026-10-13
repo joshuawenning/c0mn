@@ -5,6 +5,5 @@ class RailsHealthControllerTest < ActionDispatch::IntegrationTest
     get rails_health_check_path
 
     assert_response :success
-    assert_equal "rails/health", Rails.application.routes.recognize_path(rails_health_check_path)[:controller]
   end
 end

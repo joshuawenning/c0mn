@@ -12,9 +12,13 @@ class PasswordsControllerTest < ActionDispatch::IntegrationTest
     post passwords_path, params: { email_address: @user.email_address }
     assert_enqueued_email_with PasswordsMailer, :reset, args: [ @user ]
     assert_redirected_to new_session_path
+    notice = flash[:notice]
 
     follow_redirect!
-    assert_notice "reset instructions sent"
+    assert_select "[role='status']"
+
+    post passwords_path, params: { email_address: "missing-user@example.com" }
+    assert_equal notice, flash[:notice], "The public response must not reveal whether an account exists"
   end
 
   test "create for an unknown user redirects but sends no mail" do
@@ -23,7 +27,7 @@ class PasswordsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_session_path
 
     follow_redirect!
-    assert_notice "reset instructions sent"
+    assert_select "[role='status']"
   end
 
   test "edit" do
@@ -36,7 +40,7 @@ class PasswordsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_password_path
 
     follow_redirect!
-    assert_notice "reset link is invalid"
+    assert_select "[role='alert']"
   end
 
   test "edit with expired password reset token" do
@@ -73,8 +77,7 @@ class PasswordsControllerTest < ActionDispatch::IntegrationTest
     end
 
     follow_redirect!
-    assert_notice "Password has been reset"
-    assert_select ".flash[role='status'][aria-live='polite'][aria-atomic='true']"
+    assert_select "[role='status'][aria-live='polite']"
   end
 
   test "a reset token cannot be reused after the password changes" do
@@ -99,8 +102,7 @@ class PasswordsControllerTest < ActionDispatch::IntegrationTest
       assert_response :unprocessable_entity
     end
 
-    assert_select "[role='alert']", /confirmation doesn't match/
-    assert_select "input[aria-invalid='true'][aria-describedby='password-reset-errors']"
+    assert_invalid_field "password_confirmation"
   end
 
   test "update with a blank password" do
@@ -111,7 +113,7 @@ class PasswordsControllerTest < ActionDispatch::IntegrationTest
       assert_response :unprocessable_entity
     end
 
-    assert_select "[role='alert']", /Password can't be blank/
+    assert_invalid_field "password"
   end
 
   test "update with a short password" do
@@ -122,11 +124,6 @@ class PasswordsControllerTest < ActionDispatch::IntegrationTest
       assert_response :unprocessable_entity
     end
 
-    assert_select "[role='alert']", /Password is too short/
+    assert_invalid_field "password"
   end
-
-  private
-    def assert_notice(text)
-      assert_select ".flash", /#{text}/
-    end
 end

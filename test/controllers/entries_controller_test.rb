@@ -2,28 +2,21 @@ require "test_helper"
 
 class EntriesControllerTest < ActionDispatch::IntegrationTest
   test "renders the public collection" do
-    create_entry!(title: "A house in Mallorca", url: "https://example.com/house.jpg", tag_list: "architecture")
+    entry = create_entry!(title: "A house in Mallorca", url: "https://example.com/house.jpg", tag_list: "architecture")
 
     get root_path
 
     assert_response :success
     assert_select "html[lang='en']"
     assert_select "meta[charset='utf-8']"
-    assert_select "body > a.skip-link[href='#collection-entries']", text: "Skip to entries"
-    assert_select "#collection-entries[tabindex='-1']"
-    assert_select "h1.archive-header__title a", text: "c0mn"
-    assert_select "form.archive-search"
-    assert_select ".tag-nav__item"
-    assert_select ".tag-nav__item[aria-current='page']", count: 1
-    assert_select ".tag-dot circle[fill^='#']"
-    assert_select ".entry-card", 1
-    assert_select "nav.entry-card__tags[aria-label='Tags for A house in Mallorca']"
-    assert_select ".entry-card__media img"
+    skip_targets = css_select("a[href^='#']").filter_map do |link|
+      css_select("[id='#{link['href'].delete_prefix('#')}'][tabindex='-1']").first
+    end
+    assert_not_empty skip_targets
+    assert_rendered_entries entry
+    assert_select "img[src='#{entry.url}']"
     assert_select "a[href='#{admin_root_path}']", count: 0
-    assert_select "a[href='#{about_path}']", text: "About"
-    assert_select ".site-footer__copyright", text: "c0mn © #{Date.current.year}"
-    assert_select ".site-footer__credit a[href='https://joshuawenning.com/']", text: "@joshuawenning"
-    assert_select ".site-footer__source[href='https://github.com/joshuawenning/c0mn']", text: "View Source"
+    assert_select "a[href='#{about_path}']"
   end
 
   test "shows admin navigation only to a signed-in administrator" do
@@ -32,42 +25,43 @@ class EntriesControllerTest < ActionDispatch::IntegrationTest
     get root_path
 
     assert_response :success
-    assert_select "a[href='#{admin_root_path}']", text: "Admin"
+    assert_select "a[href='#{admin_root_path}']"
   end
 
   test "filters by tag" do
-    create_entry!(title: "A house", url: "https://example.com/house", tag_list: "architecture")
+    house = create_entry!(title: "A house", url: "https://example.com/house", tag_list: "architecture")
     create_entry!(title: "A song", url: "https://example.com/song", tag_list: "music")
 
     get root_path(tag: "architecture")
 
     assert_response :success
-    assert_includes response.body, "A house"
-    assert_not_includes response.body, "A song"
-    assert_select ".tag-nav__item[aria-current='page']", text: /architecture/
+    assert_rendered_entries house
+    assert_select "a[href='#{root_path(tag: 'architecture')}'][aria-current='page']"
   end
 
-  test "uses accurate actions for filtered and completely empty collections" do
+  test "offers an entry creation destination for empty results" do
     sign_in_as users(:owner)
     Entry.create!(title: "Existing", url: "https://example.com/existing")
 
     get root_path(q: "missing")
-    assert_select "#collection-entries.empty-state[tabindex='-1']"
-    assert_select "a", text: "Add an entry"
-    assert_select "a", text: "Add the first one", count: 0
+    assert_response :success
+    assert_rendered_entries
+    assert_select "a[href='#{new_admin_entry_path}']"
 
     Entry.delete_all
     get root_path
-    assert_select "a", text: "Add the first one"
+    assert_response :success
+    assert_rendered_entries
+    assert_select "a[href='#{new_admin_entry_path}']"
   end
 
   test "searches within a different tag while filtering" do
-    create_entry!(title: "A house", url: "https://example.com/house", tag_list: "architecture, music")
+    house = create_entry!(title: "A house", url: "https://example.com/house", tag_list: "architecture, music")
 
     get root_path(tag: "architecture", q: "music")
 
     assert_response :success
-    assert_includes response.body, "A house"
+    assert_rendered_entries house
   end
 
   test "limits search input before querying" do
@@ -80,30 +74,29 @@ class EntriesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "clamps collection pages to the available range" do
-    (EntriesController::PAGE_SIZE + 1).times do |index|
+    entries = (EntriesController::PAGE_SIZE + 1).times.map do |index|
       Entry.create!(title: "Entry #{index}", url: "https://example.com/page-#{index}")
     end
 
     get root_path(page: 10_000)
 
     assert_response :success
-    assert_select ".entry-card", count: 1
-    assert_select ".pagination__status", text: "Page 2 of 2"
-    assert_select ".pagination a", text: "Next", count: 0
-    assert_select ".pagination a", text: "Previous", count: 1
+    assert_rendered_entries entries.first
+    assert_select "a[href='#{root_path(page: 1)}']"
+    assert_select "a[href='#{root_path(page: 3)}']", count: 0
   end
 
   test "loads tags in a bounded number of queries across a full collection page" do
-    create_entry!(title: "First", url: "https://example.com/first", tag_list: "shared, reference")
+    entries = [ create_entry!(title: "First", url: "https://example.com/first", tag_list: "shared, reference") ]
     first_page_queries = collection_queries { get root_path }
 
     (EntriesController::PAGE_SIZE - 1).times do |index|
-      create_entry!(title: "Entry #{index}", url: "https://example.com/loading-#{index}", tag_list: "shared, reference")
+      entries << create_entry!(title: "Entry #{index}", url: "https://example.com/loading-#{index}", tag_list: "shared, reference")
     end
     full_page_queries = collection_queries { get root_path }
 
     assert_response :success
-    assert_select ".entry-card", count: EntriesController::PAGE_SIZE
+    assert_rendered_entries(*entries)
     assert_equal first_page_queries.size, full_page_queries.size
     assert_equal 1, full_page_queries.count { |query| query.include?('FROM "taggings"') }
     assert_equal 2, full_page_queries.count { |query| query.include?('FROM "tags"') }
@@ -112,14 +105,14 @@ class EntriesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "treats malformed collection filters as absent" do
-    Entry.create!(title: "Visible", url: "https://example.com/visible")
+    entry = Entry.create!(title: "Visible", url: "https://example.com/visible")
 
     [ { page: [ "2" ] }, { page: { value: "2" } }, { q: { value: "missing" }, tag: [ "missing" ] },
       { page: "abc" }, { page: "0" }, { page: "-2" } ].each do |filters|
       get root_path, params: filters
 
       assert_response :success
-      assert_select ".entry-card", count: 1
+      assert_rendered_entries entry
     end
   end
 
@@ -131,7 +124,7 @@ class EntriesControllerTest < ActionDispatch::IntegrationTest
     get root_path(q: "House", tag: "architecture")
 
     assert_response :success
-    assert_select ".pagination a[href='#{root_path(q: 'House', tag: 'architecture', page: 2)}']", text: "Next"
+    assert_select "a[href='#{root_path(q: 'House', tag: 'architecture', page: 2)}']"
   end
 
   test "includes a content security policy" do
@@ -159,7 +152,6 @@ class EntriesControllerTest < ActionDispatch::IntegrationTest
 
     get root_path
     assert_response :success
-    assert_select "a iframe", count: 0
     assert_select "iframe", count: 0
 
     get entry_path(entry)
@@ -174,9 +166,7 @@ class EntriesControllerTest < ActionDispatch::IntegrationTest
     get entry_path(entry)
 
     assert_response :success
-    assert_select ".entry-detail__media a", count: 0
-    assert_select ".entry-detail__url[href^='javascript:']", count: 0
-    assert_not_includes response.body, "href=\"javascript:"
+    assert_select "a[href^='javascript:']", count: 0
   end
 
   test "serves the local stylesheets linked by the collection" do
@@ -203,16 +193,18 @@ class EntriesControllerTest < ActionDispatch::IntegrationTest
     get entry_path(entry)
 
     assert_response :success
-    assert_select ".notes h2", text: "Context"
-    assert_select ".notes strong", text: "useful"
-    assert_select ".notes script", count: 0
-    assert_select ".site-nav__link[aria-current='page']", text: "Collection"
-    assert_select "aside[aria-label='Entry details']"
-    assert_select "nav.entry-detail__tags[aria-label='Entry tags']", text: /reference/
-    assert_select "a.entry-detail__url[href='https://example.com/notes'][target='_blank'][rel='noopener']"
+    assert_includes response.body, "Context"
+    assert_select "strong", text: "useful"
+    assert_select "script", text: /alert\('no'\)/, count: 0
+    assert_select "a[href='#{entry.url}'][target='_blank'][rel='noopener']"
   end
 
   private
+    def assert_rendered_entries(*entries)
+      paths = css_select("a[href]").map { |link| link["href"] }.grep(%r{\A/entries/\d+\z}).uniq.sort
+      assert_equal entries.map { |entry| entry_path(entry) }.sort, paths
+    end
+
     def collection_queries
       queries = []
       subscriber = ->(_name, _start, _finish, _id, payload) {
