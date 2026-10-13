@@ -14,7 +14,7 @@ class Entry < ApplicationRecord
   before_validation :infer_source_name
   before_validation :infer_media_kind
 
-  scope :recent, -> { order(collected_at: :desc, created_at: :desc) }
+  scope :recent, -> { order(collected_at: :desc, created_at: :desc, id: :desc) }
 
   def self.search(query)
     return all if query.blank?

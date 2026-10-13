@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_24_024055) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_13_190000) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.text "body"
     t.datetime "created_at", null: false
@@ -61,7 +61,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_24_024055) do
     t.string "title", null: false
     t.datetime "updated_at", null: false
     t.string "url", null: false
-    t.index ["collected_at"], name: "index_entries_on_collected_at"
+    t.index ["collected_at", "created_at", "id"], name: "index_entries_on_recent_order"
     t.index ["media_kind"], name: "index_entries_on_media_kind"
     t.index ["url"], name: "index_entries_on_url", unique: true
   end
@@ -81,7 +81,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_24_024055) do
     t.integer "tag_id", null: false
     t.datetime "updated_at", null: false
     t.index ["entry_id", "tag_id"], name: "index_taggings_on_entry_id_and_tag_id", unique: true
-    t.index ["entry_id"], name: "index_taggings_on_entry_id"
     t.index ["tag_id"], name: "index_taggings_on_tag_id"
   end
 

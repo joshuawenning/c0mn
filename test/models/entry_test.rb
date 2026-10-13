@@ -6,6 +6,15 @@ class EntryTest < ActiveSupport::TestCase
     assert_not_includes Entry.column_names, "description"
   end
 
+  test "orders entries consistently when collection and creation times match" do
+    timestamp = Time.current.change(usec: 0)
+    entries = 3.times.map do |index|
+      Entry.create!(title: "Tie #{index}", url: "https://example.com/tie-#{index}", collected_at: timestamp, created_at: timestamp)
+    end
+
+    assert_equal entries.reverse.map(&:id), Entry.recent.ids
+  end
+
   test "requires a regular http url" do
     entry = Entry.new(title: "Local file", url: "/notes/image.jpg")
 
