@@ -79,9 +79,56 @@ class ApplicationHelperTest < ActionView::TestCase
     assert_equal "A long...", markdown_excerpt("A long sentence", length: 9)
   end
 
+  test "cached excerpts preserve Markdown text and truncation boundaries" do
+    notes = "# Héading\n\nA **useful** [link](https://example.com).\n\n- First\n- Second\n\n```ruby\nputs 'code'\n```\n\n<script>hidden</script>"
+    entry = Entry.create!(title: "Notes", url: "https://example.com/cached", notes: notes)
+
+    with_memory_cache do
+      [ 3, 9, 40, 150 ].each do |length|
+        expected = markdown_excerpt(notes, length: length)
+        assert_equal expected, entry_notes_excerpts([ entry ], length: length).fetch(entry.id)
+        assert_equal expected, entry_notes_excerpts([ entry ], length: length).fetch(entry.id)
+      end
+    end
+  end
+
+  test "batches excerpt caching and invalidates edited notes" do
+    first = Entry.create!(title: "First", url: "https://example.com/first", notes: "First **note**")
+    second = Entry.create!(title: "Second", url: "https://example.com/second", notes: "Second note")
+    blank = Entry.create!(title: "Blank", url: "https://example.com/blank")
+
+    with_memory_cache do
+      writes = []
+      subscriber = ->(_name, _start, _finish, _id, payload) { writes << payload }
+      ActiveSupport::Notifications.subscribed(subscriber, "cache_write_multi.active_support") do
+        2.times do
+          assert_equal({ first.id => "First note", second.id => "Second note" }, entry_notes_excerpts([ first, second, blank ]))
+        end
+      end
+      assert_equal 1, writes.size
+
+      travel 1.second do
+        first.update!(notes: "Updated **note**")
+      end
+      assert_equal "Updated note", entry_notes_excerpts([ first, second ]).fetch(first.id)
+
+      second.update!(notes: "")
+      assert_not entry_notes_excerpts([ first, second ]).key?(second.id)
+    end
+  end
+
   test "rejects unsafe Markdown links" do
     html = render_markdown("[unsafe](javascript:alert('no'))")
 
     assert_no_match(/javascript:/i, html)
   end
+
+  private
+    def with_memory_cache
+      original = Rails.cache
+      Rails.cache = ActiveSupport::Cache::MemoryStore.new
+      yield
+    ensure
+      Rails.cache = original
+    end
 end

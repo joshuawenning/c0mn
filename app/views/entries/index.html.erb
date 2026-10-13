@@ -43,6 +43,7 @@
   </header>
 
   <% if @entries.any? %>
+    <% excerpts = entry_notes_excerpts(@entries) %>
     <section id="collection-entries" class="entry-grid" aria-label="Collected entries" tabindex="-1">
       <% @entries.each do |entry| %>
         <article class="entry-card entry-card--<%= entry.media_kind %>">
@@ -57,7 +58,7 @@
             </div>
             <h2 class="entry-card__title"><%= link_to entry.title, entry_path(entry) %></h2>
             <% if entry.notes.present? %>
-              <p class="entry-card__excerpt"><%= markdown_excerpt(entry.notes) %></p>
+              <p class="entry-card__excerpt"><%= excerpts.fetch(entry.id) %></p>
             <% end %>
 
             <% if entry.tags.any? %>

@@ -46,6 +46,17 @@ module ApplicationHelper
     truncate(parts.join.squish, length: length)
   end
 
+  def entry_notes_excerpts(entries, length: 150)
+    entries_by_key = entries.select { |entry| entry.notes.present? }.index_by do |entry|
+      [ entry.cache_key_with_version, "markdown-excerpt-v1", length ]
+    end
+    return {} if entries_by_key.empty?
+
+    Rails.cache.fetch_multi(*entries_by_key.keys, expires_in: 1.day) do |key|
+      markdown_excerpt(entries_by_key.fetch(key).notes, length: length)
+    end.to_h { |key, excerpt| [ entries_by_key.fetch(key).id, excerpt ] }
+  end
+
   def tag_color_dot(tag_record)
     tag.svg class: "tag-dot", viewBox: "0 0 10 10", aria: { hidden: true } do
       tag.circle cx: 5, cy: 5, fill: tag_record.color, r: 5

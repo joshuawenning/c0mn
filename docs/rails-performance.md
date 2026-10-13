@@ -40,3 +40,28 @@ as CI assertions.
   using `GC.stat(:total_allocated_objects)` after `GC.start`.
 - Preserve exact excerpt output for links, code, Unicode, whitespace, and
   truncation boundaries; verify cache invalidation if caching is introduced.
+
+## After query, ordering, and excerpt changes
+
+- The warm collection now executes 5 application SELECTs. The existence query
+  is gone, and the unfiltered count is calculated once.
+- Recent ordering uses `index_entries_on_recent_order` without a temporary
+  sort. An ID tie-breaker makes equal timestamps deterministic.
+- Tagging lookups still use the composite entry/tag index after removing the
+  redundant standalone entry index.
+- Excerpts use `fetch_multi`, so the production Solid Cache store can batch
+  reads and writes instead of issuing one cache lookup per card. Only derived
+  plain text is cached; authentication-dependent page markup is not cached.
+- Keys include the entry's version, renderer version, and excerpt length, with
+  a one-day expiry. Tests cover note edits, removed notes, lengths, and batching.
+
+Repeated local measurements with a memory cache:
+
+| Note size | Cold batch | Warm batch | Warm allocations |
+| --- | ---: | ---: | ---: |
+| 936 bytes | 7.71 ms | 0.72 ms | 1,466 |
+| 9,984 bytes | 69.90 ms | 0.74 ms | 1,464 |
+| 99,996 bytes | 676.12 ms | 0.74 ms | 1,464 |
+
+These cache-hit measurements exclude production cache database latency. Cold
+generation still parses full Markdown to preserve its existing semantics.
