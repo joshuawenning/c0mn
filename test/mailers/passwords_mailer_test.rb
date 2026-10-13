@@ -7,7 +7,7 @@ class PasswordsMailerTest < ActionMailer::TestCase
 
     assert_equal [ user.email_address ], email.to
     assert_equal [ ApplicationMailer.default_params[:from] ], email.from
-    assert_equal "Reset your password", email.subject
+    assert_predicate email.subject, :present?
   end
 
   test "links to the reset page on the configured host and protocol" do

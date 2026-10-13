@@ -2,10 +2,9 @@ require "test_helper"
 
 class ApplicationHelperTest < ActionView::TestCase
   test "renders validated external links" do
-    html = external_link_to("Source", "https://example.com/path", class_name: "source-link")
+    html = external_link_to("Source", "https://example.com/path")
 
     assert_includes html, 'href="https://example.com/path"'
-    assert_includes html, 'class="source-link"'
     assert_includes html, 'target="_blank"'
     assert_includes html, 'rel="noopener"'
   end

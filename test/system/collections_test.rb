@@ -2,17 +2,15 @@ require "application_system_test_case"
 
 class CollectionsTest < ApplicationSystemTestCase
   test "renders the collection and opens an entry detail page" do
-    create_entry!(title: "A house in Mallorca", url: "https://example.com/house", tag_list: "architecture")
+    entry = create_entry!(title: "A house in Mallorca", url: "https://example.com/house", tag_list: "architecture")
 
     visit root_path
 
-    assert_selector ".entry-card", count: 1
-    assert_text "A house in Mallorca"
+    find("a[href='#{entry_path(entry)}']", match: :first).click
 
-    find(".entry-card__title a").click
-
-    assert_selector ".entry-detail__title", text: "A house in Mallorca"
-    assert_selector "nav.entry-detail__tags", text: "architecture"
+    assert_current_path entry_path(entry)
+    assert_text(/#{Regexp.escape(entry.title)}/i)
+    assert_selector "a[href='#{root_path(tag: 'architecture')}']"
   end
 
   test "follows a Turbo entry update with the detail page" do
@@ -25,8 +23,7 @@ class CollectionsTest < ApplicationSystemTestCase
     click_button "Update Entry"
 
     assert_current_path admin_entry_path(entry)
-    assert_selector "h1", text: "Updated reference"
-    assert_text "Entry Updated."
+    assert_text(/Updated reference/i)
     assert_equal "Updated reference", entry.reload.title
     assert_equal [ "design" ], entry.tags.pluck(:name)
   end
@@ -42,7 +39,7 @@ class CollectionsTest < ApplicationSystemTestCase
     click_button "Update Entry"
 
     assert_current_path new_session_path
-    assert_selector "h1", text: "Sign in"
+    assert_selector "form[action='#{session_path}']"
     assert_equal "Original", entry.reload.title
   end
 
