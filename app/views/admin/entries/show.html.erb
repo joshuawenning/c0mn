@@ -8,7 +8,7 @@
 
   <%= render "image_preview", entry: @entry, lazy: false %>
 
-  <dl class="<%= class_names("admin-facts", "admin-facts--without-preview": @entry.embeddable_image_url.blank?) %>">
+  <dl class="<%= class_names("admin-facts", "admin-facts--without-preview": !@entry.image_master.attached?) %>">
     <dt>URL</dt>
     <dd class="admin-facts__url"><%= external_link_to @entry.url, @entry.url %></dd>
     <dt>Image URL</dt>
@@ -21,6 +21,18 @@
     </dd>
     <dt>Source</dt>
     <dd><%= @entry.source_name %></dd>
+    <% if @entry.embeddable_image_url || @entry.image_master.attached? %>
+      <dt>Local image</dt>
+      <dd>
+        <%= @entry.image_import_status.humanize %>
+        <% if @entry.image_import_error.present? %>
+          <p role="status"><%= @entry.image_import_error %></p>
+        <% end %>
+        <% if @entry.embeddable_image_url %>
+          <%= button_to "Import image again", retry_image_admin_entry_path(@entry), class: "button" %>
+        <% end %>
+      </dd>
+    <% end %>
     <dt>Kind</dt>
     <dd><%= @entry.media_kind %></dd>
     <dt>Tags</dt>

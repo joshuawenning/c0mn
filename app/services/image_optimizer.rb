@@ -4,7 +4,7 @@ class ImageOptimizer
   class Error < StandardError; end
   MAX_PIXELS = 40_000_000
   SIZES = { master: [ 1600, 500_000 ], card: [ 640, 100_000 ], thumbnail: [ 224, 25_000 ] }.freeze
-  LOADERS = %w[foreignloadjpeg foreignloadpng foreignloadwebp foreignloadgif foreignloadheif].freeze
+  LOADERS = %w[foreignloadjpeg foreignloadpng foreignloadwebp foreignloadgif foreignloadnsgif foreignloadheif].freeze
 
   def self.call(path)
     loader = Vips.vips_foreign_find_load(path)

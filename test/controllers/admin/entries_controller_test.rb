@@ -1,6 +1,7 @@
 require "test_helper"
 
 class Admin::EntriesControllerTest < ActionDispatch::IntegrationTest
+  include ActiveJob::TestHelper
   setup do
     sign_in_as users(:owner)
     @entry = create_entry!(
@@ -103,6 +104,33 @@ class Admin::EntriesControllerTest < ActionDispatch::IntegrationTest
     assert_response :see_other
     assert_equal "Updated Garden", @entry.reload.title
     assert_equal [ "ecology" ], @entry.tags.pluck(:name)
+  end
+
+  test "shows import failures and queues a fresh retry" do
+    @entry.update_columns(image_import_status: "failed", image_import_error: "Missing image")
+    get admin_entry_path(@entry)
+    assert_response :success
+    assert_includes response.body, "Missing image"
+    assert_select "form[action='#{retry_image_admin_entry_path(@entry)}']"
+    token = @entry.image_import_token
+    assert_enqueued_with(job: ImportEntryImageJob) do
+      post retry_image_admin_entry_path(@entry)
+    end
+    assert_redirected_to admin_entry_path(@entry)
+    assert_response :see_other
+    assert_equal "pending", @entry.reload.image_import_status
+    assert_not_equal token, @entry.image_import_token
+  end
+
+  test "restricts image retries to administrators" do
+    sign_out
+    token = @entry.image_import_token
+    assert_no_enqueued_jobs(only: ImportEntryImageJob) { post retry_image_admin_entry_path(@entry) }
+    assert_redirected_to new_session_path
+    sign_in_as users(:member)
+    assert_no_enqueued_jobs(only: ImportEntryImageJob) { post retry_image_admin_entry_path(@entry) }
+    assert_response :forbidden
+    assert_equal token, @entry.reload.image_import_token
   end
 
   test "does not change tags when an update is invalid" do

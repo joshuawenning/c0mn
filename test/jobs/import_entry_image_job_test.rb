@@ -82,4 +82,18 @@ class ImportEntryImageJobTest < ActiveSupport::TestCase
     perform_enqueued_jobs(only: ActiveStorage::PurgeJob) { entry.destroy! }
     assert_not blob.service.exist?(blob.key)
   end
+
+  test "temporary download failures schedule a retry without removing previous copies" do
+    entry = Entry.create!(title: "Image", url: "https://example.com/image.png")
+    import_image(entry)
+    previous = entry.image_master.blob_id
+    entry.retry_image_import!
+    with_method(ImageDownload, :open, ->(*) { raise ImageDownload::TransientError, "Image host returned HTTP 503" }) do
+      assert_enqueued_with(job: ImportEntryImageJob) do
+        ImportEntryImageJob.perform_now(entry.id, entry.image_import_token)
+      end
+    end
+    assert_equal "failed", entry.reload.image_import_status
+    assert_equal previous, entry.image_master.blob_id
+  end
 end

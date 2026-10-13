@@ -42,6 +42,9 @@ class ImportEntryImageJob < ApplicationJob
     raise
   rescue ImageDownload::Error, ImageOptimizer::Error => error
     record_failure(entry_id, token, error)
+  rescue StandardError => error
+    record_failure(entry_id, token, error)
+    raise
   ensure
     blobs&.each_value { |blob| blob.purge unless published }
   end

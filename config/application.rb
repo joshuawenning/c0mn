@@ -16,6 +16,8 @@ module C0mn
     # Common ones are `templates`, `generators`, or `middleware`, for example.
     config.autoload_lib(ignore: %w[assets tasks])
     config.exceptions_app = routes
+    # Stable image URLs with long-lived browser caching; no expiring disk redirect.
+    config.active_storage.resolve_model_to_route = :rails_storage_proxy
 
     # Configuration for the application, engines, and railties goes here.
     #

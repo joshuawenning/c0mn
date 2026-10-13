@@ -4,7 +4,7 @@ module Admin
 
     PAGE_SIZE = 50
 
-    before_action :set_entry, only: %i[show edit update destroy]
+    before_action :set_entry, only: %i[show edit update destroy retry_image]
 
     def index
       @entries = paginate(Entry.recent.with_attached_image_thumbnail, per_page: PAGE_SIZE)
@@ -18,6 +18,11 @@ module Admin
     end
 
     def edit
+    end
+
+    def retry_image
+      notice = @entry.retry_image_import! ? "Image import queued." : "No image URL to import."
+      redirect_to admin_entry_path(@entry), notice: notice, status: :see_other
     end
 
     def create

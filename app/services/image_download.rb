@@ -39,24 +39,22 @@ class ImageDownload
     http.open_timeout = 5
     http.read_timeout = 10
     http.max_retries = 0
-    deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + 30
     redirect = catch(:image_redirect) do
       http.start do
-      http.request(Net::HTTP::Get.new(uri.request_uri, "Accept" => "image/*", "Accept-Encoding" => "identity")) do |response|
-        if response.is_a?(Net::HTTPRedirection)
-          raise Error, "Too many image redirects" if redirects >= 3 || response["location"].blank?
-          throw :image_redirect, URI.join(uri.to_s, response["location"]).to_s
-        else
-          raise TransientError, "Image host returned HTTP #{response.code}" if response.code.to_i >= 500 || response.code == "429"
-          raise Error, "Image host returned HTTP #{response.code}" unless response.is_a?(Net::HTTPSuccess)
-          raise Error, "Image download exceeds 20 MB" if response["content-length"].to_i > MAX_BYTES
-          response.read_body do |chunk|
-            raise Error, "Image download timed out" if Process.clock_gettime(Process::CLOCK_MONOTONIC) > deadline
-            raise Error, "Image download exceeds 20 MB" if file.size + chunk.bytesize > MAX_BYTES
-            file.write(chunk)
+        http.request(Net::HTTP::Get.new(uri.request_uri, "Accept" => "image/*", "Accept-Encoding" => "identity")) do |response|
+          if response.is_a?(Net::HTTPRedirection)
+            raise Error, "Too many image redirects" if redirects >= 3 || response["location"].blank?
+            throw :image_redirect, URI.join(uri.to_s, response["location"]).to_s
+          else
+            raise TransientError, "Image host returned HTTP #{response.code}" if response.code.to_i >= 500 || response.code == "429"
+            raise Error, "Image host returned HTTP #{response.code}" unless response.is_a?(Net::HTTPSuccess)
+            raise Error, "Image download exceeds 20 MB" if response["content-length"].to_i > MAX_BYTES
+            response.read_body do |chunk|
+              raise Error, "Image download exceeds 20 MB" if file.size + chunk.bytesize > MAX_BYTES
+              file.write(chunk)
+            end
           end
         end
-      end
       end
       nil
     end

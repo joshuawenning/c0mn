@@ -17,7 +17,9 @@ Rails.application.routes.draw do
 
   namespace :admin do
     root "entries#index"
-    resources :entries
+    resources :entries do
+      post :retry_image, on: :member
+    end
   end
 
   resources :entries, only: %i[index show]

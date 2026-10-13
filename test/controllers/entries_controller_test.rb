@@ -153,6 +153,12 @@ class EntriesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "img[srcset][sizes][width='800']"
     assert_select "a[href='#{entry.url}']"
+    image_path = URI.parse(css_select("img[src*='/rails/active_storage/']").first["src"]).request_uri
+    get image_path
+    assert_response :success
+    assert_equal "image/webp", response.media_type
+    assert_includes response.headers["Cache-Control"], "public"
+    assert_includes response.headers["Cache-Control"], "immutable"
   end
 
   test "only embeds videos on the entry detail page" do
